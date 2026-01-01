@@ -22,8 +22,18 @@ public class CPHInline
             int maxBeg = CPH.GetGlobalVar<int>("config_beg_max", true);
             int cooldownMinutes = CPH.GetGlobalVar<int>("config_beg_cooldown_minutes", true);
 
-            string user = args["user"].ToString();
-            string userId = args["userId"].ToString();
+            // Get required args
+            if (!CPH.TryGetArg("user", out string user))
+            {
+                CPH.LogError("Beg command: Missing 'user' argument");
+                return false;
+            }
+
+            if (!CPH.TryGetArg("userId", out string userId))
+            {
+                CPH.LogError("Beg command: Missing 'userId' argument");
+                return false;
+            }
 
             // Log command execution
             LogCommand("!beg", user);
@@ -102,8 +112,7 @@ public class CPHInline
         }
         catch (Exception ex)
         {
-            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
-            LogError("Beg Command Error", $"User: {user} | Error: {ex.Message}");
+            LogError("Beg Command Error", $"Error: {ex.Message}");
             CPH.LogError($"Beg command error: {ex.Message}");
             CPH.SendMessage("An error occurred while processing the beg command. Please try again later.");
             return false;
