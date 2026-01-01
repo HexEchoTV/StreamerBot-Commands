@@ -51,25 +51,12 @@ The **Clip Command** creates a new Twitch clip and temporarily modifies your str
 
 ### Step 1: Get Twitch API Credentials
 
-1. Go to [Twitch Developer Console](https://dev.twitch.tv/console)
-2. Click **"Register Your Application"**
-3. Fill in:
-   - **Name**: "StreamerBot Clip Command" (or anything)
-   - **OAuth Redirect URLs**: `http://localhost`
-   - **Category**: Broadcasting Suite
-4. Click **Create**
-5. Copy your **Client ID**
+1. Go to [Twitch Token Generator](https://twitchtokengenerator.com)
+2. Select the **`channel:manage:broadcast`** scope (required for creating clips)
+3. Click **Generate Token**
+4. Copy your **Access Token** and **Client ID**
 
-### Step 2: Get OAuth Token
-
-1. Use this URL (replace YOUR_CLIENT_ID):
-   ```
-   https://id.twitch.tv/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=channel:manage:broadcast
-   ```
-2. Authorize the application
-3. Copy the `access_token` from the redirect URL
-
-### Step 3: Configure ConfigSetup.cs
+### Step 2: Configure ConfigSetup.cs
 
 1. Open `Currency/Core/Config-Setup/ConfigSetup.cs`
 2. Find lines 344-346:
@@ -80,7 +67,7 @@ The **Clip Command** creates a new Twitch clip and temporarily modifies your str
 3. Replace with your actual credentials
 4. **Run ConfigSetup.cs** to save the credentials
 
-### Step 4: Configure Discord Webhook (Optional)
+### Step 3: Configure Discord Webhook (Optional)
 
 In ClipCommand.cs line 151, update the webhook URL:
 ```csharp
@@ -89,7 +76,7 @@ string webhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE";
 
 Or leave the default if you want clips posted to the existing webhook.
 
-### Step 5: Import Clip Command
+### Step 4: Import Clip Command
 
 1. Open StreamerBot
 2. Go to **Actions** tab
