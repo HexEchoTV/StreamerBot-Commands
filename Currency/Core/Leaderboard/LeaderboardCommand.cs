@@ -15,10 +15,10 @@ public class CPHInline
         try
         {
             // Get user info for logging
-            string userName = args.ContainsKey("userName") ? args["userName"].ToString() : "Unknown";
+            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
 
             // Log command execution
-            LogCommand("!leaderboard", userName);
+            LogCommand("!leaderboard", user);
 
             // Load configuration from global variables
             string currencyName = CPH.GetGlobalVar<string>("config_currency_name", true);
@@ -75,8 +75,8 @@ public class CPHInline
         }
         catch (Exception ex)
         {
-            string userName = args.ContainsKey("userName") ? args["userName"].ToString() : "Unknown";
-            LogError("Leaderboard Command Error", $"User: {userName} | Error: {ex.Message}");
+            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
+            LogError("Leaderboard Command Error", $"User: {user} | Error: {ex.Message}");
             CPH.LogError($"Leaderboard command error: {ex.Message}");
             CPH.SendMessage("An error occurred while fetching the leaderboard. Please try again later.");
             return false;
@@ -113,9 +113,9 @@ public class CPHInline
         SendToDiscord(title, message, COLOR_ERROR, "ERROR");
     }
 
-    private void LogCommand(string commandName, string userName, string details = "")
+    private void LogCommand(string commandName, string user, string details = "")
     {
-        string message = $"**User:** {userName}";
+        string message = $"**User:** {user}";
         if (!string.IsNullOrEmpty(details))
         {
             message += $"\n**Details:** {details}";
