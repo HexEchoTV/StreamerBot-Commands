@@ -365,7 +365,7 @@ Need help? Join our Discord for support:
 
 - **File**: `GiveCommand.cs`
 - **Location**: `Currency/Core/Give-Coins/`
-- **Created by**: HexEchoTV (CUB) | [GitHub](https://github.com/ThortonEllmers/Streamerbot-Commands)
+- **Created by**: HexEchoTV (CUB) | [GitHub](https://github.com/HexEchoTV/Streamerbot-Commands)
 - **License**: Free for personal use only
 - **Dependencies**: ConfigSetup.cs
 
