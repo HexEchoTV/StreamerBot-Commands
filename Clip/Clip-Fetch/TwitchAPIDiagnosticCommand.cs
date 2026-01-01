@@ -42,10 +42,14 @@ public class CPHInline
         // Test 2: Check broadcaster ID
         CPH.SendMessage("TEST 2: Checking broadcaster ID...");
         string broadcasterId = null;
-        if (args.ContainsKey("broadcastUserId"))
-            broadcasterId = args["broadcastUserId"].ToString();
-        else if (args.ContainsKey("broadcasterUserId"))
-            broadcasterId = args["broadcasterUserId"].ToString();
+        if (CPH.TryGetArg("broadcastUserId", out string tempBroadcasterId) && !string.IsNullOrEmpty(tempBroadcasterId))
+        {
+            broadcasterId = tempBroadcasterId;
+        }
+        else if (CPH.TryGetArg("broadcasterUserId", out tempBroadcasterId) && !string.IsNullOrEmpty(tempBroadcasterId))
+        {
+            broadcasterId = tempBroadcasterId;
+        }
 
         if (string.IsNullOrEmpty(broadcasterId))
         {
