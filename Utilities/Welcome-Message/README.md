@@ -1,7 +1,7 @@
 # Welcome First-Time Chatter
 
 ## Description
-Automatically welcomes first-time chatters to your stream! Greets each user **ONCE PER DAY** when they chat. Resets at midnight UTC, so viewers get a fresh welcome each calendar day. Perfect for building a welcoming community atmosphere without overwhelming chat with repeated welcomes.
+Automatically welcomes first-time chatters to your stream with **role-based personalized messages**! Greets moderators, subscribers, VIPs, and regular viewers with unique messages **ONCE PER DAY** when they chat. Resets at midnight UTC, so viewers get a fresh welcome each calendar day. Perfect for building a welcoming community atmosphere while recognizing your supporters without overwhelming chat with repeated welcomes.
 
 ## Trigger
 **Event:** Twitch → Chat → Message
@@ -9,6 +9,7 @@ Automatically welcomes first-time chatters to your stream! Greets each user **ON
 This trigger fires on every chat message, and the code handles checking if the user was already welcomed today.
 
 ## Features
+- **Role-based welcome messages** - Different messages for mods, subs, VIPs, and regular viewers
 - **Automatic welcome messages** - No commands needed
 - **Once per calendar day** - Users welcomed once daily
 - **Date-based tracking** - Resets at midnight UTC
@@ -38,7 +39,22 @@ The code checks the date on every message and only sends a welcome once per cale
 
 ## Example Output
 
-**User's First Message Today:**
+**Moderator's First Message Today:**
+```
+👋 Welcome, Mod UserName! 🛡️
+```
+
+**Subscriber's First Message Today:**
+```
+👋 Welcome, subscriber UserName! Thanks for the support! 💜
+```
+
+**VIP's First Message Today:**
+```
+👋 Welcome, VIP UserName! ⭐
+```
+
+**Regular Viewer's First Message Today:**
 ```
 👋 Welcome to the stream, UserName! 💜
 ```
@@ -50,7 +66,8 @@ The code checks the date on every message and only sends a welcome once per cale
 
 **Next Day:**
 ```
-👋 Welcome to the stream, UserName! 💜
+👋 Welcome, Mod UserName! 🛡️
+(Role-based message shows again)
 ```
 
 ## Data Storage
@@ -63,22 +80,69 @@ The code checks the date on every message and only sends a welcome once per cale
 
 ## Configuration
 
-### Welcome Message
-Customize the welcome message (line 29):
+### Role-Based Welcome Messages (Default)
+The system now sends different welcome messages based on user roles. Customize these messages (lines 47-62):
+
 ```csharp
-CPH.SendMessage($"👋 Welcome to the stream, {user}! 💜");
+// Moderators (highest priority)
+if (isModerator)
+{
+    CPH.SendMessage($"👋 Welcome, Mod {user}! 🛡️");
+}
+// Subscribers
+else if (isSubscriber)
+{
+    CPH.SendMessage($"👋 Welcome, subscriber {user}! Thanks for the support! 💜");
+}
+// VIPs
+else if (isVip)
+{
+    CPH.SendMessage($"👋 Welcome, VIP {user}! ⭐");
+}
+// Regular viewers
+else
+{
+    CPH.SendMessage($"👋 Welcome to the stream, {user}! 💜");
+}
 ```
 
-### Examples:
+### Customization Examples:
 ```csharp
-// Simple
-CPH.SendMessage($"Welcome, {user}!");
+// Simple version
+if (isModerator)
+{
+    CPH.SendMessage($"Hey Mod {user}! 🛡️");
+}
+else if (isSubscriber)
+{
+    CPH.SendMessage($"Welcome back, sub {user}! 💜");
+}
+else if (isVip)
+{
+    CPH.SendMessage($"VIP {user} has arrived! ⭐");
+}
+else
+{
+    CPH.SendMessage($"Welcome, {user}!");
+}
 
-// Friendly
-CPH.SendMessage($"Hey {user}! Great to see you! 🎉");
-
-// Themed
-CPH.SendMessage($"{user} has entered the arena! ⚔️");
+// Themed version
+if (isModerator)
+{
+    CPH.SendMessage($"Guardian {user} has entered the realm! 🛡️");
+}
+else if (isSubscriber)
+{
+    CPH.SendMessage($"Champion {user} joins the battle! ⚔️💜");
+}
+else if (isVip)
+{
+    CPH.SendMessage($"Noble {user} graces us! ⭐");
+}
+else
+{
+    CPH.SendMessage($"Adventurer {user} has arrived! 🗺️");
+}
 ```
 
 ## Dependencies
@@ -136,43 +200,32 @@ first_timers_2025-01-15 → 47 unique chatters
 first_timers_2025-01-16 → 52 unique chatters
 ```
 
-## Customization Ideas
+## Additional Customization Ideas
 
-### Random Welcome Messages
+### Add Random Messages (Per Role)
+Combine role-based welcomes with randomization:
 ```csharp
-string[] welcomes = {
-    $"👋 Welcome to the stream, {user}! 💜",
-    $"Hey {user}! Great to see you! 🎉",
-    $"Welcome aboard, {user}! 🚀",
-    $"{user} has joined the adventure! 🗺️"
-};
-
-Random random = new Random();
-CPH.SendMessage(welcomes[random.Next(welcomes.Length)]);
-```
-
-### Role-Based Welcomes
-```csharp
-bool isSubscriber = args.ContainsKey("isSubscriber") && (bool)args["isSubscriber"];
-bool isModerator = args.ContainsKey("isModerator") && (bool)args["isModerator"];
-bool isVip = args.ContainsKey("isVip") && (bool)args["isVip"];
-
 if (isModerator)
 {
-    CPH.SendMessage($"👋 Welcome, Mod {user}! 🛡️");
+    string[] modWelcomes = {
+        $"👋 Welcome, Mod {user}! 🛡️",
+        $"Guardian {user} has arrived! 🛡️",
+        $"Mod {user} is here to keep the peace! 🛡️"
+    };
+    Random random = new Random();
+    CPH.SendMessage(modWelcomes[random.Next(modWelcomes.Length)]);
 }
 else if (isSubscriber)
 {
-    CPH.SendMessage($"👋 Welcome, subscriber {user}! Thanks for the support! 💜");
+    string[] subWelcomes = {
+        $"👋 Welcome, subscriber {user}! Thanks for the support! 💜",
+        $"Sub {user} has returned! 💜",
+        $"Our champion {user} is here! 💜⚔️"
+    };
+    Random random = new Random();
+    CPH.SendMessage(subWelcomes[random.Next(subWelcomes.Length)]);
 }
-else if (isVip)
-{
-    CPH.SendMessage($"👋 Welcome, VIP {user}! ⭐");
-}
-else
-{
-    CPH.SendMessage($"👋 Welcome to the stream, {user}! 💜");
-}
+// ... continue for VIP and regular users
 ```
 
 ### Emote-Only Welcomes
@@ -281,7 +334,11 @@ if (todayCount == 50)
 
 ### Test Right Now:
 1. Type a message in your Twitch chat
-2. You should see: `👋 Welcome to the stream, YourName! 💜`
+2. You should see a role-based welcome:
+   - **Moderator:** `👋 Welcome, Mod YourName! 🛡️`
+   - **Subscriber:** `👋 Welcome, subscriber YourName! Thanks for the support! 💜`
+   - **VIP:** `👋 Welcome, VIP YourName! ⭐`
+   - **Regular viewer:** `👋 Welcome to the stream, YourName! 💜`
 3. Type another message
 4. No welcome (already welcomed today)
 
@@ -289,10 +346,11 @@ if (todayCount == 50)
 1. Check **StreamerBot logs** - Look for "New chatter welcomed"
 2. Check **Variables tab** - Find your user's `last_welcome_date`
 3. Check **Discord** - If logging enabled, see welcome notification
+4. **Test with different roles** - Have a mod, sub, VIP, or regular viewer type in chat
 
 ### Test Tomorrow:
 - Type in chat again
-- Should get welcomed (new day!)
+- Should get welcomed with your role-based message (new day!)
 - Date variable updates to new date
 
 ---
