@@ -55,7 +55,7 @@ public class CPHInline
             string displayName = userInfo.UserLogin;
 
             // Send shoutout message in chat
-            CPH.SendMessage($"Check out {displayName} at https://twitch.tv/{displayName} - They're a good creature!");
+            CPH.SendMessage($"Take a looksee at {displayName} at https://twitch.tv/{displayName} - They're a good creature!");
 
             LogSuccess("Shoutout Complete", $"**User:** {user}\n**Target:** {displayName}");
 
