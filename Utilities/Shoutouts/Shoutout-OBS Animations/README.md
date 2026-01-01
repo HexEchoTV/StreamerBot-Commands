@@ -259,7 +259,7 @@ Use StreamerBot's sound playback features to add audio cues during transitions.
 ## Author
 
 Created by **HexEchoTV (CUB)**
-https://github.com/ThortonEllmers/Streamerbot-Commands
+https://github.com/HexEchoTV/Streamerbot-Commands
 
 ## License
 
