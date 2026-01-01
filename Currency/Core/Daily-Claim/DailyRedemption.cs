@@ -24,11 +24,11 @@ public class CPHInline
             string alreadyClaimedMessage = "{user}, you already claimed your daily {currency}! Come back in {hours}h {minutes}m.";
 
             // Get the user who ran the command
-            string userName = args["userName"].ToString();
+            string user = args["user"].ToString();
             string userId = args["userId"].ToString();
 
             // Log command execution
-            LogCommand("!daily", userName);
+            LogCommand("!daily", user);
 
             // Get the last claim time from user variables
             string lastClaimStr = CPH.GetTwitchUserVarById<string>(userId, "daily_lastclaim", true);
@@ -63,11 +63,11 @@ public class CPHInline
 
                 // Log cooldown warning
                 LogWarning("Daily Cooldown Active",
-                    $"**User:** {userName}\n**Time Remaining:** {hoursLeft}h {minutesLeft}m");
+                    $"**User:** {user}\n**Time Remaining:** {hoursLeft}h {minutesLeft}m");
 
                 // Send cooldown message
                 string message = alreadyClaimedMessage
-                    .Replace("{user}", userName)
+                    .Replace("{user}", user)
                     .Replace("{hours}", hoursLeft.ToString())
                     .Replace("{minutes}", minutesLeft.ToString())
                     .Replace("{currency}", currencyName);
@@ -91,11 +91,11 @@ public class CPHInline
 
             // Log successful claim
             LogSuccess("Daily Claimed Successfully",
-                $"**User:** {userName}\n**Reward:** {dailyReward} {currencyName}\n**New Balance:** {newBalance} {currencyName}\n**Claim Count:** {claimCount}");
+                $"**User:** {user}\n**Reward:** {dailyReward} {currencyName}\n**New Balance:** {newBalance} {currencyName}\n**Claim Count:** {claimCount}");
 
             // Send success message
             string successMsg = successMessage
-                .Replace("{user}", userName)
+                .Replace("{user}", user)
                 .Replace("{coins}", dailyReward.ToString())
                 .Replace("{total}", newBalance.ToString())
                 .Replace("{count}", claimCount.ToString())
@@ -109,9 +109,9 @@ public class CPHInline
         {
             // Log error to Discord
             LogError("Daily Command Error",
-                $"**User:** {args["userName"]}\n**Error:** {ex.Message}\n**Stack Trace:** {ex.StackTrace}");
+                $"**User:** {args["user"]}\n**Error:** {ex.Message}\n**Stack Trace:** {ex.StackTrace}");
 
-            CPH.LogError($"Daily command error for {args["userName"]}: {ex.Message}");
+            CPH.LogError($"Daily command error for {args["user"]}: {ex.Message}");
             return false;
         }
     }
@@ -146,9 +146,9 @@ public class CPHInline
         SendToDiscord(title, message, COLOR_ERROR, "ERROR");
     }
 
-    private void LogCommand(string commandName, string userName, string details = "")
+    private void LogCommand(string commandName, string user, string details = "")
     {
-        string message = $"**User:** {userName}";
+        string message = $"**User:** {user}";
         if (!string.IsNullOrEmpty(details))
         {
             message += $"\n**Details:** {details}";
