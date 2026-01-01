@@ -199,7 +199,7 @@ All methods are included in the example file:
 ## Author
 
 Created by **HexEchoTV (CUB)**
-https://github.com/ThortonEllmers/Streamerbot-Commands
+https://github.com/HexEchoTV/Streamerbot-Commands
 
 ## License
 
