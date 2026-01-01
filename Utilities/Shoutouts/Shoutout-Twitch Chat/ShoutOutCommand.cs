@@ -18,13 +18,13 @@ public class CPHInline
             // Get the target username from the command argument
             string targetUser = "";
 
-            if (args.ContainsKey("targetUser") && !string.IsNullOrEmpty(args["targetUser"].ToString()))
+            if (CPH.TryGetArg("targetUser", out string tempTargetUser) && !string.IsNullOrEmpty(tempTargetUser))
             {
-                targetUser = args["targetUser"].ToString();
+                targetUser = tempTargetUser;
             }
-            else if (args.ContainsKey("input0") && !string.IsNullOrEmpty(args["input0"].ToString()))
+            else if (CPH.TryGetArg("input0", out string input0) && !string.IsNullOrEmpty(input0))
             {
-                targetUser = args["input0"].ToString();
+                targetUser = input0;
             }
             else
             {
@@ -36,7 +36,8 @@ public class CPHInline
             targetUser = targetUser.Replace("@", "").Trim().ToLower();
 
             // Get user who ran the command
-            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
+            CPH.TryGetArg("user", out string user);
+            if (string.IsNullOrEmpty(user)) user = "Unknown";
 
             // Log command execution
             LogCommand("!shoutout", user, $"Target: {targetUser}");
