@@ -95,4 +95,4 @@ To get your Twitch API credentials:
 - **No followage data** - User may not be following
 
 ---
-Created by HexEchoTV (CUB) | [GitHub](https://github.com/ThortonEllmers/Streamerbot-Commands)
+Created by HexEchoTV (CUB) | [GitHub](https://github.com/HexEchoTV/Streamerbot-Commands)
