@@ -24,8 +24,17 @@ public class CPHInline
             string alreadyClaimedMessage = "{user}, you already claimed your daily {currency}! Come back in {hours}h {minutes}m.";
 
             // Get the user who ran the command
-            string user = args["user"].ToString();
-            string userId = args["userId"].ToString();
+            if (!CPH.TryGetArg("user", out string user))
+            {
+                CPH.LogError("Daily command: Missing 'user' argument");
+                return false;
+            }
+
+            if (!CPH.TryGetArg("userId", out string userId))
+            {
+                CPH.LogError("Daily command: Missing 'userId' argument");
+                return false;
+            }
 
             // Log command execution
             LogCommand("!daily", user);
@@ -108,10 +117,12 @@ public class CPHInline
         catch (Exception ex)
         {
             // Log error to Discord
+            CPH.TryGetArg("user", out string user);
+            string userLog = string.IsNullOrEmpty(user) ? "Unknown" : user;
             LogError("Daily Command Error",
-                $"**User:** {args["user"]}\n**Error:** {ex.Message}\n**Stack Trace:** {ex.StackTrace}");
+                $"**User:** {userLog}\n**Error:** {ex.Message}\n**Stack Trace:** {ex.StackTrace}");
 
-            CPH.LogError($"Daily command error for {args["user"]}: {ex.Message}");
+            CPH.LogError($"Daily command error for {userLog}: {ex.Message}");
             return false;
         }
     }
