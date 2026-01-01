@@ -20,32 +20,33 @@ public class CPHInline
     {
         try
         {
-            // Safely get args with fallbacks
-            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
-            string userId = args.ContainsKey("userId") ? args["userId"].ToString() : null;
-            string broadcasterId = args.ContainsKey("broadcastUserId") ? args["broadcastUserId"].ToString() : null;
+            CPH.TryGetArg("user", out string user);
+            if (string.IsNullOrEmpty(user)) user = "Unknown";
+
+            if (!CPH.TryGetArg("userId", out string userId) || string.IsNullOrEmpty(userId))
+            {
+                CPH.SendMessage("⚠️ Error: Could not get user ID from command");
+                CPH.LogError("FollowageCommand: Missing 'userId' argument");
+                return false;
+            }
+
+            if (!CPH.TryGetArg("broadcastUserId", out string broadcasterId) || string.IsNullOrEmpty(broadcasterId))
+            {
+                CPH.SendMessage("⚠️ Error: Could not get broadcaster ID");
+                CPH.LogError("FollowageCommand: Missing 'broadcastUserId' argument");
+                return false;
+            }
 
             // Log command execution
             LogCommand("!followage", user);
 
             // Get command arguments - try multiple possible fields
-            string rawInput = args.ContainsKey("rawInput") ? args["rawInput"].ToString().Trim() : "";
-            string input0 = args.ContainsKey("input0") ? args["input0"].ToString().Trim() : "";
+            CPH.TryGetArg("rawInput", out string rawInput);
+            CPH.TryGetArg("input0", out string input0);
+            if (rawInput == null) rawInput = "";
+            if (input0 == null) input0 = "";
+
             string targetUsername = !string.IsNullOrEmpty(input0) ? input0 : rawInput;
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                CPH.SendMessage("⚠️ Error: Could not get user ID from command");
-                CPH.LogError("userId not found in args");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(broadcasterId))
-            {
-                CPH.SendMessage("⚠️ Error: Could not get broadcaster ID");
-                CPH.LogError("broadcastUserId not found in args");
-                return false;
-            }
 
         // Check if checking another user's followage
         string targetUser = user;
