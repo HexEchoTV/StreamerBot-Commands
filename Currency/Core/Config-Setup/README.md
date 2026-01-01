@@ -122,7 +122,7 @@ All commands in the Currency system use these configuration values:
 ## Author
 
 Created by **HexEchoTV (CUB)**
-https://github.com/ThortonEllmers/Streamerbot-Commands
+https://github.com/HexEchoTV/Streamerbot-Commands
 
 ## License
 
