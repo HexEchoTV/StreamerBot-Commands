@@ -387,7 +387,7 @@ Need help? Join our Discord for support:
 
 - **File**: `DailyRedemption.cs`
 - **Location**: `Currency/Core/Daily-Claim/`
-- **Created by**: HexEchoTV (CUB) | [GitHub](https://github.com/ThortonEllmers/Streamerbot-Commands)
+- **Created by**: HexEchoTV (CUB) | [GitHub](https://github.com/HexEchoTV/Streamerbot-Commands)
 - **License**: Free for personal use only
 - **Dependencies**: ConfigSetup.cs
 
