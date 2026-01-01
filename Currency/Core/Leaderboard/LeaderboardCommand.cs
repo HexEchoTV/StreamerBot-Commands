@@ -15,7 +15,11 @@ public class CPHInline
         try
         {
             // Get user info for logging
-            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
+            if (!CPH.TryGetArg("user", out string user))
+            {
+                CPH.LogError("Leaderboard command: Missing 'user' argument");
+                return false;
+            }
 
             // Log command execution
             LogCommand("!leaderboard", user);
@@ -75,8 +79,9 @@ public class CPHInline
         }
         catch (Exception ex)
         {
-            string user = args.ContainsKey("user") ? args["user"].ToString() : "Unknown";
-            LogError("Leaderboard Command Error", $"User: {user} | Error: {ex.Message}");
+            CPH.TryGetArg("user", out string user);
+            string userLog = string.IsNullOrEmpty(user) ? "Unknown" : user;
+            LogError("Leaderboard Command Error", $"User: {userLog} | Error: {ex.Message}");
             CPH.LogError($"Leaderboard command error: {ex.Message}");
             CPH.SendMessage("An error occurred while fetching the leaderboard. Please try again later.");
             return false;
