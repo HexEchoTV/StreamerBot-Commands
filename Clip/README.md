@@ -52,19 +52,22 @@ The **Clip Command** creates a new Twitch clip and temporarily modifies your str
 ### Step 1: Get Twitch API Credentials
 
 1. Go to [Twitch Token Generator](https://twitchtokengenerator.com)
-2. Select the **`channel:manage:broadcast`** scope (required for creating clips)
+2. Select the required scopes:
+   - **`channel:manage:broadcast`** (required for creating clips)
+   - **`moderator:read:followers`** (optional, for other commands)
 3. Click **Generate Token**
-4. Copy your **Access Token** and **Client ID**
+4. Copy your **Access Token**, **Refresh Token**, and **Client ID**
 
 ### Step 2: Configure ConfigSetup.cs
 
 1. Open `Currency/Core/Config-Setup/ConfigSetup.cs`
-2. Find lines 344-346:
+2. Find lines 347-349:
    ```csharp
-   CPH.SetGlobalVar("twitchApiClientId", "YOUR_CLIENT_ID_HERE", true);
-   CPH.SetGlobalVar("twitchApiAccessToken", "YOUR_ACCESS_TOKEN_HERE", true);
+   string twitchAccessToken = "YOUR_ACCESS_TOKEN_HERE";
+   string twitchRefreshToken = "YOUR_REFRESH_TOKEN_HERE";
+   string twitchClientId = "YOUR_CLIENT_ID_HERE";
    ```
-3. Replace with your actual credentials
+3. Replace with your actual credentials from twitchtokengenerator.com
 4. **Run ConfigSetup.cs** to save the credentials
 
 ### Step 3: Configure Discord Webhook (Optional)
