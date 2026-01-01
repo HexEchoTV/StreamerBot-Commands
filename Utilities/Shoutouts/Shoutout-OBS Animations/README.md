@@ -144,16 +144,16 @@ int videoPlayTime = 20000;         // 20 seconds instead of 15
 
 ### Change Chat Messages
 ```csharp
-// With clip (around line 140)
-CPH.SendMessage($"Check out this awesome clip from {targetUser}! https://twitch.tv/{targetUser}");
+// With clip (line 137)
+CPH.SendMessage($"Take a looksee at {targetUser} at https://twitch.tv/{targetUser} - Here's one of their clips!");
 
-// Without clip (around line 150)
-CPH.SendMessage($"Go follow {targetUser} at https://twitch.tv/{targetUser}!");
+// Without clip (line 144)
+CPH.SendMessage($"Take a looksee at {targetUser} at https://twitch.tv/{targetUser} - They're a good creature!");
 ```
 
 ### Change OBS Text
 ```csharp
-string message = $"Check out this amazing streamer!";  // Line 71
+string message = $"Take a look at!";  // Line 74 - Customize the display message
 ```
 
 ### Change Scene/Group Names
@@ -249,8 +249,8 @@ Status: SUCCESS
 
 ### Modify Clip Selection
 ```csharp
-// Change clip date range (line ~90)
-DateTime startDate = DateTime.UtcNow.AddDays(-30);  // Last 30 days instead of 90
+// Change clip date range (line 83)
+List<ClipData> clips = CPH.GetClipsForUser(targetUser, new TimeSpan(30, 0, 0, 0), true);  // Last 30 days instead of 90
 ```
 
 ### Add Sound Effects
