@@ -18,17 +18,17 @@ public class CPHInline
             string currencyKey = CPH.GetGlobalVar<string>("config_currency_key", true);
 
             // Get the user who ran the command
-            string userName = args["userName"].ToString();
+            string user = args["user"].ToString();
             string userId = args["userId"].ToString();
 
             // Get user's balance from user variables
             int balance = CPH.GetTwitchUserVarById<int>(userId, currencyKey, true);
 
             // Send balance message
-            CPH.SendMessage($"{userName} has ${balance} {currencyName}.");
+            CPH.SendMessage($"{user} has ${balance} {currencyName}.");
 
             // Log command execution to Discord
-            LogCommand("!balance", userName, $"Balance: {balance}");
+            LogCommand("!balance", user, $"Balance: {balance}");
 
             return true;
         }
@@ -70,9 +70,9 @@ public class CPHInline
         SendToDiscord(title, message, COLOR_ERROR, "ERROR");
     }
 
-    private void LogCommand(string commandName, string userName, string details = "")
+    private void LogCommand(string commandName, string user, string details = "")
     {
-        string message = $"**User:** {userName}";
+        string message = $"**User:** {user}";
         if (!string.IsNullOrEmpty(details))
         {
             message += $"\n**Details:** {details}";
