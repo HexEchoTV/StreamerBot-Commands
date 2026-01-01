@@ -38,8 +38,28 @@ public class CPHInline
             // Mark user as welcomed for today (stored in Twitch USER variable)
             CPH.SetTwitchUserVarById(userId, "last_welcome_date", today, true);
 
-            // Send welcome message
-            CPH.SendMessage($"👋 Welcome to the stream, {user}! 💜");
+            // Check user roles for personalized welcome
+            bool isSubscriber = args.ContainsKey("isSubscriber") && (bool)args["isSubscriber"];
+            bool isModerator = args.ContainsKey("isModerator") && (bool)args["isModerator"];
+            bool isVip = args.ContainsKey("isVip") && (bool)args["isVip"];
+
+            // Send role-based welcome message
+            if (isModerator)
+            {
+                CPH.SendMessage($"👋 Welcome, Mod {user}! 🛡️");
+            }
+            else if (isSubscriber)
+            {
+                CPH.SendMessage($"👋 Welcome, subscriber {user}! Thanks for the support! 💜");
+            }
+            else if (isVip)
+            {
+                CPH.SendMessage($"👋 Welcome, VIP {user}! ⭐");
+            }
+            else
+            {
+                CPH.SendMessage($"👋 Welcome to the stream, {user}! 💜");
+            }
 
             // Track total first-time chatters for today (global counter)
             string todayCountKey = $"first_timers_{today}";
