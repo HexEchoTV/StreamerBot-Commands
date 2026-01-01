@@ -24,8 +24,17 @@ public class CPHInline
             string currencyKey = CPH.GetGlobalVar<string>("config_currency_key", true);
 
             // Get the user who ran the command
-            string user = args["user"].ToString();
-            string userId = args["userId"].ToString();
+            if (!CPH.TryGetArg("user", out string user))
+            {
+                CPH.LogError("Example Integration: Missing 'user' argument");
+                return false;
+            }
+
+            if (!CPH.TryGetArg("userId", out string userId))
+            {
+                CPH.LogError("Example Integration: Missing 'userId' argument");
+                return false;
+            }
 
             // ============================================
             // EXAMPLE 1: Check user's balance
