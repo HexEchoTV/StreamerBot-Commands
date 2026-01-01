@@ -21,18 +21,27 @@ public class CPHInline
         int minPercent = CPH.GetGlobalVar<int>("config_rob_min_percent", true);
         int maxPercent = CPH.GetGlobalVar<int>("config_rob_max_percent", true);
 
-        string user = args["user"].ToString();
-        string userId = args["userId"].ToString();
+        if (!CPH.TryGetArg("user", out string user))
+        {
+            CPH.LogError("Rob command: Missing 'user' argument");
+            return false;
+        }
+
+        if (!CPH.TryGetArg("userId", out string userId))
+        {
+            CPH.LogError("Rob command: Missing 'userId' argument");
+            return false;
+        }
 
         // Get target user
         string targetUser = "";
-        if (args.ContainsKey("targetUser") && !string.IsNullOrEmpty(args["targetUser"].ToString()))
+        if (CPH.TryGetArg("targetUser", out string tempTargetUser) && !string.IsNullOrEmpty(tempTargetUser))
         {
-            targetUser = args["targetUser"].ToString();
+            targetUser = tempTargetUser;
         }
-        else if (args.ContainsKey("input0") && !string.IsNullOrEmpty(args["input0"].ToString()))
+        else if (CPH.TryGetArg("input0", out string input0) && !string.IsNullOrEmpty(input0))
         {
-            targetUser = args["input0"].ToString();
+            targetUser = input0;
         }
         else
         {
