@@ -65,7 +65,10 @@ string twitchClientId = "YOUR_CLIENT_ID_HERE";
 ```
 
 Get credentials from: https://twitchtokengenerator.com/
-Required scope: `channel:manage:broadcast`
+
+**Required scopes:**
+- `channel:manage:broadcast` (for clips, stream title, game commands)
+- `moderator:read:followers` (for followage command)
 
 ### Discord Webhook Setup
 
