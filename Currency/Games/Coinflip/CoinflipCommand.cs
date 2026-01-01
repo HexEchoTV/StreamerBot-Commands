@@ -22,21 +22,30 @@ public class CPHInline
             int maxBet = CPH.GetGlobalVar<int>("config_coinflip_max_bet", true);
             int winMult = CPH.GetGlobalVar<int>("config_coinflip_win_mult", true);
 
-            string user = args["user"].ToString();
-            string userId = args["userId"].ToString();
+            if (!CPH.TryGetArg("user", out string user))
+            {
+                CPH.LogError("Coinflip command: Missing 'user' argument");
+                return false;
+            }
+
+            if (!CPH.TryGetArg("userId", out string userId))
+            {
+                CPH.LogError("Coinflip command: Missing 'userId' argument");
+                return false;
+            }
 
             // Get choice (heads or tails)
             string choice = "";
-            if (args.ContainsKey("input0") && !string.IsNullOrEmpty(args["input0"].ToString()))
+            if (CPH.TryGetArg("input0", out string input0) && !string.IsNullOrEmpty(input0))
             {
-                choice = args["input0"].ToString().ToLower();
+                choice = input0.ToLower();
             }
 
             // Get bet amount
             int betAmount = 0;
-            if (args.ContainsKey("input1") && !string.IsNullOrEmpty(args["input1"].ToString()))
+            if (CPH.TryGetArg("input1", out string input1) && !string.IsNullOrEmpty(input1))
             {
-                if (!int.TryParse(args["input1"].ToString(), out betAmount))
+                if (!int.TryParse(input1, out betAmount))
                 {
                     CPH.SendMessage($"{user}, invalid bet amount! Usage: !coinflip heads/tails {minBet}-{maxBet}");
                     return false;
