@@ -1,34 +1,95 @@
-# Clip Commands
+# Clip Command (with Stream Title Modification)
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20for%20Help-7289da)](https://discord.gg/ngQXHUbnKg)
 
 ## Overview
 
-The **Clip Commands** folder contains utilities for fetching and displaying Twitch clips in your chat.
+The **Clip Command** creates a new Twitch clip and temporarily modifies your stream title to credit the clip creator. This advanced command integrates directly with the Twitch Helix API to provide a seamless clipping experience with automatic title management.
 
-## Available Commands
+## What This Command Does
 
-| Command | File | Purpose | Usage |
-|---------|------|---------|-------|
-| **Clip Fetch** | `ClipCommand.cs` | Get latest clip from your channel | `!clip` |
+1. **Gets current stream title** from Twitch API
+2. **Temporarily changes title** to "Clipped by {username} - {original title}"
+3. **Creates a new clip** using StreamerBot's clip creation
+4. **Restores original title** automatically
+5. **Posts clip to Discord webhook** (hardcoded)
+6. **Logs all actions** to Discord (if configured)
 
-## What This Does
+## Key Features
 
-The Clip command allows viewers to:
-- Fetch the most recent clip from your channel
-- Display clip title and URL in chat
-- Share highlights easily
-- Promote clip creation
+- ✅ **Automatic title modification** - Credits clip creator in stream title
+- ✅ **Title restoration** - Original title restored after clip creation
+- ✅ **Discord integration** - Posts clips to Discord webhook automatically
+- ✅ **Live stream detection** - Only works when stream is live
+- ✅ **Error handling** - Graceful fallbacks if title changes fail
+- ✅ **Comprehensive logging** - All actions logged to Discord
+- ✅ **Twitch API integration** - Direct Helix API calls with OAuth
+
+## Dependencies
+
+### Required Dependencies
+
+1. **ConfigSetup.cs** (REQUIRED)
+   - Location: `Currency/Core/Config-Setup/ConfigSetup.cs`
+   - Purpose: Stores Twitch API credentials
+   - **Must be configured before using this command**
+
+2. **Twitch OAuth Token** (REQUIRED)
+   - Required scope: `channel:manage:broadcast`
+   - Needed for: Reading and modifying stream title
+   - Configure in ConfigSetup.cs (lines 344-346)
+
+3. **Stream Must Be Live** (REQUIRED)
+   - Clips can only be created during live streams
+   - Command will fail if stream is offline
+
+### Optional Dependencies
+
+- **Discord Logging** - Built-in, configure webhook in ConfigSetup.cs
 
 ## Installation
 
-### Prerequisites
+### Step 1: Get Twitch API Credentials
 
-**Optional:**
-- ConfigSetup.cs (for Discord logging only)
-- No other dependencies required
+1. Go to [Twitch Developer Console](https://dev.twitch.tv/console)
+2. Click **"Register Your Application"**
+3. Fill in:
+   - **Name**: "StreamerBot Clip Command" (or anything)
+   - **OAuth Redirect URLs**: `http://localhost`
+   - **Category**: Broadcasting Suite
+4. Click **Create**
+5. Copy your **Client ID**
 
-### Install Clip Command
+### Step 2: Get OAuth Token
+
+1. Use this URL (replace YOUR_CLIENT_ID):
+   ```
+   https://id.twitch.tv/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=channel:manage:broadcast
+   ```
+2. Authorize the application
+3. Copy the `access_token` from the redirect URL
+
+### Step 3: Configure ConfigSetup.cs
+
+1. Open `Currency/Core/Config-Setup/ConfigSetup.cs`
+2. Find lines 344-346:
+   ```csharp
+   CPH.SetGlobalVar("twitchApiClientId", "YOUR_CLIENT_ID_HERE", true);
+   CPH.SetGlobalVar("twitchApiAccessToken", "YOUR_ACCESS_TOKEN_HERE", true);
+   ```
+3. Replace with your actual credentials
+4. **Run ConfigSetup.cs** to save the credentials
+
+### Step 4: Configure Discord Webhook (Optional)
+
+In ClipCommand.cs line 151, update the webhook URL:
+```csharp
+string webhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE";
+```
+
+Or leave the default if you want clips posted to the existing webhook.
+
+### Step 5: Import Clip Command
 
 1. Open StreamerBot
 2. Go to **Actions** tab
@@ -36,21 +97,21 @@ The Clip command allows viewers to:
 4. Select `Clip/Clip-Fetch/ClipCommand.cs`
 5. Click **Import**
 
-### Create Chat Trigger
+### Step 6: Create Chat Trigger
 
 1. In the imported action, go to **Triggers** tab
 2. Click **Add** → **Chat Message** → **Command**
 3. Configure:
    - **Command**: `!clip`
-   - **Permission**: Everyone
+   - **Permission**: Everyone (or Moderators only)
    - **Enabled**: ✅ Check
 4. Click **OK**
 
-### Test the Command
+### Step 7: Test the Command
 
-1. Go to your Twitch chat
-2. Type: `!clip`
-3. Bot should respond with your latest clip
+1. **Make sure your stream is LIVE**
+2. Type in chat: `!clip`
+3. Watch the title change and clip creation happen!
 
 ## Usage
 
@@ -58,272 +119,475 @@ The Clip command allows viewers to:
 
 ```
 !clip
-→ Latest clip: "Amazing Play!" https://clips.twitch.tv/...
 ```
 
-### When No Clips Exist
+### Expected Behavior
 
+**Step 1: Title Change**
 ```
-!clip
-→ No clips found for this channel.
+Original title: "Playing Valorant - Ranked Grind"
+↓
+Modified title: "Clipped by Username - Playing Valorant - Ranked Grind"
+```
+
+**Step 2: Clip Creation**
+```
+@Username Generating your clip, please wait...
+```
+
+**Step 3: Title Restored**
+```
+Restored title: "Playing Valorant - Ranked Grind"
+```
+
+**Step 4: Clip Delivered**
+```
+@Username Your clip is ready! https://clips.twitch.tv/...
+```
+
+### Example Output
+
+**Successful Clip:**
+```
+@Username Generating your clip, please wait...
+@Username Your clip is ready! https://clips.twitch.tv/ExampleClipURL
+```
+
+**Stream Not Live:**
+```
+@Username Cannot create clip - stream is not live!
+```
+
+**API Not Configured:**
+```
+⚠️ Twitch API not configured! Please configure in ConfigSetup.cs and run it.
 ```
 
 ## Configuration
 
-### Customizing the Response
+### Twitch API Credentials
 
-Edit `ClipCommand.cs` to customize the message format:
-
-**Default format (line ~35):**
+Located in ConfigSetup.cs (lines 344-346):
 ```csharp
-CPH.SendMessage($"Latest clip: \"{clipTitle}\" {clipUrl}");
+CPH.SetGlobalVar("twitchApiClientId", "YOUR_CLIENT_ID", true);
+CPH.SetGlobalVar("twitchApiAccessToken", "YOUR_ACCESS_TOKEN", true);
+```
+
+**Security Note:** Keep these credentials private! Don't commit them to public repositories.
+
+### Discord Webhook URL
+
+Located in ClipCommand.cs (line 151):
+```csharp
+string webhookUrl = "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN";
+```
+
+To get a Discord webhook:
+1. Go to Discord server settings → Integrations
+2. Create webhook
+3. Copy webhook URL
+4. Paste into ClipCommand.cs line 151
+
+### Custom Title Format
+
+To change the temporary title format (line 96):
+```csharp
+// Default format
+string tempTitle = $"Clipped by {clipRequester} - {originalTitle}";
+
+// Custom examples:
+string tempTitle = $"🎬 {clipRequester} made a clip! - {originalTitle}";
+string tempTitle = $"[CLIP] {originalTitle} - by {clipRequester}";
+string tempTitle = $"{clipRequester}'s Highlight - {originalTitle}";
+```
+
+### Custom Chat Messages
+
+**Clip request message (line 77):**
+```csharp
+CPH.SendMessage($"@{clipRequester} Generating your clip, please wait...");
+```
+
+**Clip ready message (line 144):**
+```csharp
+CPH.SendMessage($"@{clipRequester} Your clip is ready! {clipUrl}");
 ```
 
 **Custom examples:**
 ```csharp
-// With emotes
-CPH.SendMessage($"🎬 Latest clip: {clipTitle} → {clipUrl}");
+// More excited
+CPH.SendMessage($"🎉 @{clipRequester} Your epic clip is ready! {clipUrl}");
 
-// More detailed
-CPH.SendMessage($"Check out this clip: \"{clipTitle}\" by {creatorName} - {clipUrl}");
+// With emoji
+CPH.SendMessage($"✂️ @{clipRequester} Clip created! {clipUrl}");
 
 // Simple
-CPH.SendMessage($"Latest clip: {clipUrl}");
+CPH.SendMessage($"Clip: {clipUrl}");
 ```
 
-### Changing Clip Count
+### Wait Times
 
-To fetch multiple clips:
+**Title propagation wait (line 106):**
+```csharp
+CPH.Wait(3000);  // 3 seconds - increase if title doesn't appear in clip
+```
 
-1. Edit `ClipCommand.cs`
-2. Find the API call (line ~25):
-   ```csharp
-   // Change from 1 to desired number
-   var clips = CPH.TwitchGetClips(1);  // Get 1 clip
-   var clips = CPH.TwitchGetClips(5);  // Get 5 clips
-   ```
-3. Update message formatting to handle multiple clips
+**Clip processing wait (line 118):**
+```csharp
+CPH.Wait(2000);  // 2 seconds - increase if clip URL is null
+```
 
-### Adding Cooldown
+## How It Works
 
-To prevent spam:
+### Detailed Workflow
 
-1. In StreamerBot, select the Clip action
-2. Go to **Settings** tab
-3. Add **Queue** delay:
-   - Delay: 10000ms (10 seconds)
-   - Concurrent: 1
-4. Click **OK**
+```
+User types !clip
+    ↓
+[1] Check if API credentials configured
+    ↓
+[2] Check if stream is live (OBS streaming)
+    ↓
+[3] Get broadcaster ID from StreamerBot
+    ↓
+[4] Call Twitch API to get current stream title
+    ↓
+[5] Create temporary title: "Clipped by {user} - {original}"
+    ↓
+[6] Call Twitch API to set new title (PATCH request)
+    ↓
+[7] Wait 3 seconds for title to propagate
+    ↓
+[8] Create clip using CPH.CreateClip()
+    ↓
+[9] Wait 2 seconds for clip to process
+    ↓
+[10] Call Twitch API to restore original title
+    ↓
+[11] Send clip URL to chat
+    ↓
+[12] Post clip to Discord webhook
+    ↓
+[13] Log everything to Discord (if enabled)
+```
 
-## Dependencies
+### API Methods Used
 
-### No Dependencies Required
+**GetChannelTitle() - Lines 178-232**
+- Calls: `GET https://api.twitch.tv/helix/channels?broadcaster_id={id}`
+- Purpose: Retrieves current stream title
+- Returns: Stream title as string
 
-The Clip command works standalone using:
-- Built-in StreamerBot Twitch API
-- No external files needed
+**SetChannelTitle() - Lines 235-282**
+- Calls: `PATCH https://api.twitch.tv/helix/channels?broadcaster_id={id}`
+- Purpose: Updates stream title
+- Requires: OAuth token with `channel:manage:broadcast` scope
 
-### Optional Dependencies
-
-**ConfigSetup.cs** (Optional)
-- Location: `Currency/Core/Config-Setup/ConfigSetup.cs`
-- Only needed for Discord logging
-- Not required for clip functionality
-
-**Discord Logging** (Optional)
-- Built into ClipCommand.cs
-- Logs clip fetches to Discord
-- Configure in ConfigSetup.cs
-
-## Permissions
-
-### Who Can Use
-
-By default: **Everyone**
-
-To restrict to moderators:
-1. Edit chat trigger
-2. Change **Permission** to "Moderators"
-3. Save
-
-### Recommended Permissions
-
-- **Everyone** - Let all viewers share clips
-- **Moderators** - If you want controlled clip sharing
+**CPH.CreateClip() - Line 116**
+- StreamerBot built-in method
+- Creates clip from current broadcast
+- Returns: ClipData object with URL
 
 ## Discord Logging
 
-If Discord logging is configured, the command logs:
+If Discord logging is enabled (configured in ConfigSetup.cs):
 
-### Successful Clip Fetch
+### Command Execution (Purple)
 ```
 🎮 COMMAND
-Command: !clip
+Command: !clip (with title)
 User: Username
 ```
 
+### Title Retrieved (Blue)
+```
+ℹ️ INFO
+Getting Stream Title
+User: Username
+Broadcaster ID: 123456789
+```
+
+### Title Changed (Blue)
+```
+ℹ️ INFO
+Title Changed
+User: Username
+New Title: Clipped by Username - Original Title
+```
+
+### Title Restored (Blue)
+```
+ℹ️ INFO
+Title Restored
+Original Title: Original Title
+```
+
+### Clip Created (Green)
 ```
 ✅ SUCCESS
-Clip Fetched
+Clip Created (with Title Change)
 User: Username
-Clip: "Amazing Play!"
 URL: https://clips.twitch.tv/...
+Temp Title: Clipped by Username - Original Title
+Restored: True
 ```
 
-### No Clips Found
+### Warnings (Orange)
 ```
 ⚠️ WARNING
-No Clips Available
+Clip - Stream Not Live
 User: Username
-Channel: YourChannel
 ```
 
-### Errors
+```
+⚠️ WARNING
+Title Change Failed
+User: Username
+Reason: API call failed
+```
+
+### Errors (Red)
 ```
 ❌ ERROR
-Clip Command Error
+Twitch API Not Configured
+Reason: Credentials not set in ConfigSetup.cs
+```
+
+```
+❌ ERROR
+Clip Command Exception
+User: Username
 Error: [Error message]
+Stack Trace: [Stack trace]
 ```
 
 ## Troubleshooting
 
-### Issue: No clips found
-
-**Possible causes:**
-- No clips exist for your channel
-- Clips may be deleted
-- Twitch API delay (clips need time to process)
-
-**Solutions:**
-- Create a clip manually
-- Wait 1-2 minutes after clip creation
-- Check your Twitch dashboard for clips
-
-### Issue: Command not responding
-
-**Solutions:**
-- Verify chat trigger is enabled
-- Check StreamerBot is connected to Twitch
-- Look for errors in StreamerBot logs
-- Ensure Twitch API permissions are granted
-
-### Issue: Shows wrong channel's clips
+### Issue: "Twitch API not configured" error
 
 **Solution:**
-- ClipCommand automatically uses your channel
-- Verify StreamerBot broadcaster account is correct
+1. Open ConfigSetup.cs
+2. Add your Twitch Client ID and Access Token (lines 344-346)
+3. Run ConfigSetup.cs to save credentials
+4. Try !clip command again
 
-### Issue: Old clip showing
+### Issue: "Cannot create clip - stream is not live"
 
-**Explanation:**
-- Command fetches most recent clip
-- Clip order based on creation time
-- Create new clip to update
+**Solution:**
+- This command only works during live streams
+- Start streaming in OBS
+- Verify StreamerBot shows you as live
+- Try command again
+
+### Issue: Title changes but doesn't appear in clip
+
+**Solution:**
+- Increase wait time after title change (line 106)
+- Change from 3000ms to 5000ms or higher
+- Twitch API propagation can be slow
+
+### Issue: Clip URL is null/empty
+
+**Solution:**
+- Increase wait time after clip creation (line 118)
+- Change from 2000ms to 4000ms or higher
+- Clips need time to process on Twitch
+
+### Issue: Title doesn't restore after clip
+
+**Cause:**
+- API call failed or timed out
+- Check StreamerBot logs for errors
+
+**Solution:**
+- Manually change title back in Twitch dashboard
+- Check OAuth token has correct permissions
+- Verify token hasn't expired
+
+### Issue: "Broadcaster ID not found" error
+
+**Solution:**
+- This is a StreamerBot configuration issue
+- Verify you're logged into correct Twitch account
+- Reconnect Twitch account in StreamerBot settings
+- Check StreamerBot logs for available args keys
+
+### Issue: OAuth token expired
+
+**Symptoms:**
+- API calls fail with 401 errors
+- "Unauthorized" in logs
+
+**Solution:**
+1. Generate new OAuth token (see Installation Step 2)
+2. Update ConfigSetup.cs with new token
+3. Run ConfigSetup.cs again
+
+## Permissions & Security
+
+### Required Twitch Permissions
+
+The OAuth token MUST have:
+- ✅ `channel:manage:broadcast` - To read and modify stream title
+
+### Security Best Practices
+
+1. **Never share your OAuth token publicly**
+2. **Don't commit ConfigSetup.cs with real credentials to Git**
+3. **Regenerate tokens if exposed**
+4. **Use a dedicated bot account if possible**
+
+### Recommended User Permissions
+
+**Who can use !clip:**
+- Everyone - Let all viewers create clips
+- Moderators Only - More controlled clip creation
+- VIPs Only - Reward trusted members
+
+Configure in StreamerBot trigger settings.
 
 ## Advanced Features
 
-### Fetch Random Clip
+### Add Clip Cooldown
 
-Modify the command to get random clips:
+Prevent spam by adding a user cooldown:
 
-```csharp
-// Fetch 10 clips
-var clips = CPH.TwitchGetClips(10);
+1. In StreamerBot, select the Clip action
+2. Go to **Settings** or **Queue** tab
+3. Add user cooldown: 60 seconds (1 clip per minute per user)
 
-// Pick random one
-Random rnd = new Random();
-int randomIndex = rnd.Next(clips.Count);
-var clip = clips[randomIndex];
-```
+### Multiple Discord Webhooks
 
-### Fetch Clip by Creator
+Post clips to multiple Discord servers:
 
 ```csharp
-// Add parameter for username
-string targetUser = args.ContainsKey("rawInput")
-    ? args["rawInput"].ToString()
-    : userName;
-
-// Fetch clips by that user
-var clips = CPH.TwitchGetClipsForUser(targetUser, 1);
+// After line 157, add:
+string webhook2 = "https://discord.com/api/webhooks/SECOND_WEBHOOK";
+try {
+    CPH.DiscordPostTextToWebhook(webhook2, discordMessage, "Clip Bot", avatarUrl, false);
+} catch { }
 ```
 
-### Display Clip Stats
+### Custom Avatar for Discord Posts
+
+Change the bot avatar (line 152):
+```csharp
+string avatarUrl = "https://your-image-url-here.png";
+```
+
+### Add Clip Duration to Message
 
 ```csharp
-// Include view count and creation date
-CPH.SendMessage($"Latest clip: \"{clipTitle}\" ({viewCount} views, created {createdAt}) - {clipUrl}");
+// After clip creation (line 116):
+int duration = clipData?.Duration ?? 30;
+CPH.SendMessage($"@{clipRequester} Your {duration}s clip is ready! {clipUrl}");
 ```
+
+### Skip Title Change for Specific Users
+
+```csharp
+// After line 44, add:
+string[] skipUsers = { "mod1", "mod2", "streamer" };
+bool skipTitle = Array.Exists(skipUsers, u => u == clipRequester.ToLower());
+
+if (!skipTitle) {
+    // Do title change
+} else {
+    // Skip straight to clip creation
+}
+```
+
+## API Rate Limits
+
+### Twitch API Limits
+
+- **GET /channels**: 800 requests per minute
+- **PATCH /channels**: 800 requests per minute
+- StreamerBot handles rate limiting automatically
+
+### Recommended Cooldowns
+
+- **User cooldown**: 60 seconds (1 clip per user per minute)
+- **Global cooldown**: 10 seconds (prevent spam)
 
 ## Use Cases
 
+### Credit Clip Creators
+
+Show appreciation by crediting users in the stream title when they create clips.
+
 ### Promote Clip Creation
 
-Encourage viewers to create clips:
-```
-Moderator: Great play! Create a clip!
-[Viewers create clip]
-Viewer: !clip
-→ Latest clip: "Insane Headshot!" https://...
-```
+Encourage viewers to clip moments by making it easy and rewarding with title recognition.
 
-### Recap Stream Highlights
+### Track Clip Activity
 
-```
-You: That was amazing! Check the clip!
-Bot: !clip
-→ Latest clip: "Epic Moment!" https://...
-```
+Monitor who creates clips through Discord logs.
 
-### Share Best Moments
+### Highlight Moments
+
+Allow viewers to mark important moments that appear in title temporarily.
+
+## File Structure
 
 ```
-Viewer: !clip
-→ Show them your best recent moment
+Clip/
+├── Clip-Fetch/
+│   ├── ClipCommand.cs          # Main clip creation command
+│   └── TwitchAPIDiagnosticCommand.cs  # API debugging tool
+└── README.md                    # This file
 ```
 
-## Related Commands
+## Related Files
 
-- **!highlight** - Create a highlight (if you have that command)
-- **!discord** - Share Discord where clips are posted
-- **!social** - Share other social media
-
-## API Information
-
-### Twitch API Endpoints Used
-
-The command uses StreamerBot's built-in:
-```csharp
-CPH.TwitchGetClips(count)
-```
-
-This calls:
-- Twitch Helix API `/clips`
-- Filtered to your channel
-- Sorted by creation date (newest first)
-- Returns clip metadata (title, URL, creator, views)
-
-### Rate Limits
-
-- Twitch API rate limits apply
-- StreamerBot handles rate limiting automatically
-- Recommended cooldown: 10+ seconds
+- **ConfigSetup.cs** - Required for API credentials
+- **TwitchAPIDiagnosticCommand.cs** - Tool for debugging API issues
 
 ## Support
 
-Need help with clip commands?
+Need help with the Clip Command?
 
 - **Discord**: [https://discord.gg/ngQXHUbnKg](https://discord.gg/ngQXHUbnKg)
-- **Twitch Clips API**: [Twitch Developer Docs](https://dev.twitch.tv/docs/api/reference#get-clips)
+- **Twitch API Docs**: [https://dev.twitch.tv/docs/api/reference](https://dev.twitch.tv/docs/api/reference)
 - **StreamerBot Support**: [StreamerBot Discord](https://discord.gg/streamerbot)
+
+## Technical Details
+
+### Twitch API Endpoints
+
+**Get Channel Information:**
+```
+GET https://api.twitch.tv/helix/channels?broadcaster_id={id}
+Headers:
+  - Authorization: Bearer {access_token}
+  - Client-Id: {client_id}
+```
+
+**Update Channel Information:**
+```
+PATCH https://api.twitch.tv/helix/channels?broadcaster_id={id}
+Headers:
+  - Authorization: Bearer {access_token}
+  - Client-Id: {client_id}
+  - Content-Type: application/json
+Body:
+  {"title": "New Title Here"}
+```
+
+### Error Handling
+
+The command includes comprehensive error handling:
+- API credential validation
+- Live stream detection
+- Broadcaster ID verification
+- API call failures (graceful degradation)
+- Clip creation failures
+- Discord logging (silent failures)
 
 ## File Information
 
 - **Folder**: `Clip/Clip-Fetch/`
 - **File**: `ClipCommand.cs`
 - **Created by**: HexEchoTV (CUB) | [GitHub](https://github.com/HexEchoTV/Streamerbot-Commands)
-- **License**: Free for personal use only
-
-
-
-
+- **License**: MIT License
+- **Dependencies**: ConfigSetup.cs, Twitch OAuth Token
