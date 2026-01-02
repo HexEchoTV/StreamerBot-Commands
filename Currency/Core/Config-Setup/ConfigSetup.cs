@@ -115,6 +115,7 @@ public class CPHInline
         CPH.SetGlobalVar("config_blackjack_min_bet", 25, true);
         CPH.SetGlobalVar("config_blackjack_max_bet", 500, true);
         CPH.SetGlobalVar("config_blackjack_win_mult", 2, true);
+        CPH.SetGlobalVar("config_blackjack_cooldown_seconds", 30, true);
 
         // Roulette Command
         CPH.SetGlobalVar("config_roulette_min_bet", 15, true);
