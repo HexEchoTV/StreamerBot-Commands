@@ -34,6 +34,30 @@ public class CPHInline
                 return false;
             }
 
+            // Cooldown check
+            int cooldownSeconds = CPH.GetGlobalVar<int>("config_coinflip_cooldown_seconds", true);
+            if (cooldownSeconds == 0) cooldownSeconds = 20;
+
+            string lastPlayedStr = CPH.GetTwitchUserVarById<string>(userId, "coinflip_last_played", true);
+            if (!string.IsNullOrEmpty(lastPlayedStr))
+            {
+                DateTime lastPlayed = DateTime.Parse(lastPlayedStr);
+                DateTime nextAvailable = lastPlayed.AddSeconds(cooldownSeconds);
+                DateTime now = DateTime.UtcNow;
+
+                if (now < nextAvailable)
+                {
+                    TimeSpan remaining = nextAvailable - now;
+                    string timeLeft = remaining.TotalSeconds < 60
+                        ? $"{(int)remaining.TotalSeconds}s"
+                        : $"{remaining.Minutes}m {remaining.Seconds}s";
+
+                    CPH.SendMessage($"{user}, coinflip cooldown! Wait {timeLeft} before playing again.");
+                    LogWarning("Coinflip Cooldown", $"**User:** {user}\n**Time Remaining:** {timeLeft}");
+                    return false;
+                }
+            }
+
             // Get choice (heads or tails)
             string choice = "";
             if (CPH.TryGetArg("input0", out string input0) && !string.IsNullOrEmpty(input0))
@@ -121,6 +145,9 @@ public class CPHInline
 
                 CPH.SendMessage($"{coinEmoji} {result.ToUpper()}! {user} LOST ${betAmount} {currencyName}. Balance: ${balance}");
             }
+
+            // Set cooldown timestamp
+            CPH.SetTwitchUserVarById(userId, "coinflip_last_played", DateTime.UtcNow.ToString("o"), true);
 
             return true;
         }
