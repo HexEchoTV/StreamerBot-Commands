@@ -36,6 +36,30 @@ public class CPHInline
                 return false;
             }
 
+            // Cooldown check
+            int cooldownSeconds = CPH.GetGlobalVar<int>("config_bingo_cooldown_seconds", true);
+            if (cooldownSeconds == 0) cooldownSeconds = 20;
+
+            string lastPlayedStr = CPH.GetTwitchUserVarById<string>(userId, "bingo_last_played", true);
+            if (!string.IsNullOrEmpty(lastPlayedStr))
+            {
+                DateTime lastPlayed = DateTime.Parse(lastPlayedStr);
+                DateTime nextAvailable = lastPlayed.AddSeconds(cooldownSeconds);
+                DateTime now = DateTime.UtcNow;
+
+                if (now < nextAvailable)
+                {
+                    TimeSpan remaining = nextAvailable - now;
+                    string timeLeft = remaining.TotalSeconds < 60
+                        ? $"{(int)remaining.TotalSeconds}s"
+                        : $"{remaining.Minutes}m {remaining.Seconds}s";
+
+                    CPH.SendMessage($"{user}, bingo cooldown! Wait {timeLeft} before playing again.");
+                    LogWarning("Bingo Cooldown", $"**User:** {user}\n**Time Remaining:** {timeLeft}");
+                    return false;
+                }
+            }
+
             // Get bet amount
             int betAmount = 0;
             if (!CPH.TryGetArg("input0", out string input0) || string.IsNullOrEmpty(input0) || !int.TryParse(input0, out betAmount) || betAmount < minBet || betAmount > maxBet)
@@ -68,6 +92,9 @@ public class CPHInline
             int winnings = (int)(betAmount * multiplier);
             balance += winnings;
             CPH.SetTwitchUserVarById(userId, currencyKey, balance, true);
+
+            // Set cooldown timestamp
+            CPH.SetTwitchUserVarById(userId, "bingo_last_played", DateTime.UtcNow.ToString("o"), true);
 
             if (lines == 5)
             {
