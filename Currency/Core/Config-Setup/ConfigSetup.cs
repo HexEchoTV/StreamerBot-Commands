@@ -176,7 +176,7 @@ public class CPHInline
         // Crash Command
         CPH.SetGlobalVar("config_crash_min_bet", 25, true);
         CPH.SetGlobalVar("config_crash_max_bet", 500, true);
-        CPH.SetGlobalVar("config_crash_max_mult", 20, true);
+        CPH.SetGlobalVar("config_crash_max_mult", 10, true);
 
         // Limbo Command
         CPH.SetGlobalVar("config_limbo_min_bet", 20, true);
