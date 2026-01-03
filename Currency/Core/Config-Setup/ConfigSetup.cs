@@ -421,10 +421,17 @@ public class CPHInline
         string youtubeApiKey = "YOUR_YOUTUBE_API_KEY_HERE";  // PASTE YOUR API KEY HERE
         CPH.SetGlobalVar("config_youtube_api_key", youtubeApiKey, true);
 
-        // YouTube Music Lyrics Feature (Uses free Lyrics.ovh API - no key needed!)
+        // YouTube Music Lyrics Feature (Uses free LRCLIB API - no key needed!)
         // Enable/disable scrolling lyrics for music.youtube.com videos
+        // LRCLIB provides timestamped lyrics for perfect karaoke-style sync!
         bool youtubeLyricsEnabled = true;  // Set to false to disable lyrics
         CPH.SetGlobalVar("config_youtube_lyrics_enabled", youtubeLyricsEnabled, true);
+
+        // Lyrics timing offset in seconds (can be negative or positive)
+        // Positive = lyrics appear later, Negative = lyrics appear earlier
+        // Adjust this if lyrics are slightly off-sync (try values between -1.0 and 1.0)
+        double youtubeLyricsOffset = 0.0;  // Default: no offset
+        CPH.SetGlobalVar("config_youtube_lyrics_offset", youtubeLyricsOffset, true);
 
         // ===== DISCORD LOGGING CONFIGURATION =====
         // Get webhook from: Discord Server’ Server Settings’ Integrations’ Webhooks
