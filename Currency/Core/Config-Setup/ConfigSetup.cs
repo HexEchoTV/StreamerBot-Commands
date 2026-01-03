@@ -35,6 +35,11 @@ public class CPHInline
         // ===== LEADERBOARD SETTINGS =====
         CPH.SetGlobalVar("config_leaderboard_top_count", 5, true);
 
+        // ===== GAME SESSION TIMEOUT =====
+        // Inactivity timeout for multi-turn games (in seconds)
+        // Games will auto-forfeit after this many seconds of no user action
+        CPH.SetGlobalVar("config_game_inactivity_timeout", 60, true);
+
         // ===== WORK/EARNING COMMANDS =====
 
         // Work Command
@@ -392,6 +397,35 @@ public class CPHInline
         CPH.SetGlobalVar("twitchApiRefreshToken", twitchRefreshToken, true);
         CPH.SetGlobalVar("twitchApiClientId", twitchClientId, true);
 
+        // ===== YOUTUBE VIDEO REDEMPTION =====
+        // OBS scene and source for the YouTube video player
+        string youtubeObsScene = "Main Scene"; // Change this to your scene name
+        string youtubeObsSource = "YouTube Player"; // Change this to your browser source name
+        CPH.SetGlobalVar("config_youtube_obs_scene", youtubeObsScene, true);
+        CPH.SetGlobalVar("config_youtube_obs_source", youtubeObsSource, true);
+
+        // YouTube redemption settings
+        int youtubeRedemptionCost = 500; // Cost in channel points or currency
+        int youtubeMaxDuration = 600; // Maximum video duration in seconds (10 minutes)
+        CPH.SetGlobalVar("config_youtube_redemption_cost", youtubeRedemptionCost, true);
+        CPH.SetGlobalVar("config_youtube_max_duration", youtubeMaxDuration, true);
+
+        // YouTube progress bar color (hex color code)
+        // Examples: "#FF0000" (red), "#00FF00" (green), "#0080FF" (blue), "#FF00FF" (magenta), "#FFA500" (orange)
+        string youtubeProgressColor = "#FF0000"; // Default: red
+        CPH.SetGlobalVar("config_youtube_progress_color", youtubeProgressColor, true);
+
+        // YouTube Data API v3 Key (Get from: https://console.cloud.google.com/)
+        // REQUIRED for exact video duration detection (free tier: 10,000 requests/day)
+        // Leave empty to use fallback monitoring (less accurate)
+        string youtubeApiKey = "YOUR_YOUTUBE_API_KEY_HERE";  // PASTE YOUR API KEY HERE
+        CPH.SetGlobalVar("config_youtube_api_key", youtubeApiKey, true);
+
+        // YouTube Music Lyrics Feature (Uses free Lyrics.ovh API - no key needed!)
+        // Enable/disable scrolling lyrics for music.youtube.com videos
+        bool youtubeLyricsEnabled = true;  // Set to false to disable lyrics
+        CPH.SetGlobalVar("config_youtube_lyrics_enabled", youtubeLyricsEnabled, true);
+
         // ===== DISCORD LOGGING CONFIGURATION =====
         // Get webhook from: Discord Server’ Server Settings’ Integrations’ Webhooks
         // Used by: All commands for centralized logging to Discord
@@ -439,8 +473,20 @@ public class CPHInline
         }
         else
         {
-            CPH.SendMessage("⚠️ Discord logging webhook NOT configured. Edit ConfigSetup.cs line 361 OR set in StreamerBot Global Variables for logging.");
-            CPH.LogWarn("Discord webhook not configured. Edit line 361 to set your webhook URL.");
+            CPH.SendMessage("⚠️ Discord logging webhook NOT configured. Edit ConfigSetup.cs line 423 OR set in StreamerBot Global Variables for logging.");
+            CPH.LogWarn("Discord webhook not configured. Edit line 423 to set your webhook URL.");
+        }
+
+        // Check if YouTube API key was configured
+        if (!string.IsNullOrEmpty(youtubeApiKey) && youtubeApiKey != "YOUR_YOUTUBE_API_KEY_HERE")
+        {
+            CPH.SendMessage("✅ YouTube Data API configured! Videos will play exact durations (YouTube Player & Karaoke)");
+            CPH.LogInfo("YouTube Data API key configured successfully");
+        }
+        else
+        {
+            CPH.SendMessage("⚠️ YouTube API NOT configured. Videos will use fallback timing (may be inaccurate). Get free API key: https://console.cloud.google.com/");
+            CPH.LogWarn("YouTube API key not configured. Edit line 416 to enable exact video duration detection.");
         }
 
         return true;
