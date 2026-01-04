@@ -602,12 +602,42 @@ public class CPHInline
                     if (plainStart > -1)
                     {
                         plainStart = response.IndexOf("\"", plainStart + 14) + 1;
-                        int plainEnd = response.IndexOf("\"", plainStart);
+
+                        // Find the actual closing quote, accounting for escaped quotes
+                        int plainEnd = plainStart;
+                        while (true)
+                        {
+                            plainEnd = response.IndexOf("\"", plainEnd);
+                            if (plainEnd == -1) break;
+
+                            // Count backslashes before this quote
+                            int backslashCount = 0;
+                            int checkPos = plainEnd - 1;
+                            while (checkPos >= plainStart && response[checkPos] == '\\')
+                            {
+                                backslashCount++;
+                                checkPos--;
+                            }
+
+                            // If even number of backslashes (including 0), this quote is not escaped
+                            if (backslashCount % 2 == 0)
+                            {
+                                break; // Found the actual closing quote
+                            }
+
+                            // This quote was escaped, continue searching
+                            plainEnd++;
+                        }
 
                         if (plainEnd > plainStart)
                         {
                             string lyrics = response.Substring(plainStart, plainEnd - plainStart);
-                            lyrics = lyrics.Replace("\\n", "\n").Replace("\\r", "").Replace("\\\"", "\"").Replace("\\\\", "\\");
+                            // Unescape JSON characters (backslash MUST be done last)
+                            lyrics = lyrics.Replace("\\n", "\n")
+                                           .Replace("\\r", "")
+                                           .Replace("\\t", "\t")
+                                           .Replace("\\\"", "\"")
+                                           .Replace("\\\\", "\\");
 
                             int lineCount = lyrics.Split('\n').Length;
                             return lyrics;
@@ -618,13 +648,42 @@ public class CPHInline
                 }
 
                 syncedStart = response.IndexOf("\"", syncedStart + 15) + 1;
-                int syncedEnd = response.IndexOf("\"", syncedStart);
+
+                // Find the actual closing quote, accounting for escaped quotes
+                int syncedEnd = syncedStart;
+                while (true)
+                {
+                    syncedEnd = response.IndexOf("\"", syncedEnd);
+                    if (syncedEnd == -1) break;
+
+                    // Count backslashes before this quote
+                    int backslashCount = 0;
+                    int checkPos = syncedEnd - 1;
+                    while (checkPos >= syncedStart && response[checkPos] == '\\')
+                    {
+                        backslashCount++;
+                        checkPos--;
+                    }
+
+                    // If even number of backslashes (including 0), this quote is not escaped
+                    if (backslashCount % 2 == 0)
+                    {
+                        break; // Found the actual closing quote
+                    }
+
+                    // This quote was escaped, continue searching
+                    syncedEnd++;
+                }
 
                 if (syncedEnd > syncedStart)
                 {
                     string lyrics = response.Substring(syncedStart, syncedEnd - syncedStart);
-                    // Unescape JSON characters
-                    lyrics = lyrics.Replace("\\n", "\n").Replace("\\r", "").Replace("\\\"", "\"").Replace("\\\\", "\\");
+                    // Unescape JSON characters (backslash MUST be done last to avoid double-unescaping)
+                    lyrics = lyrics.Replace("\\n", "\n")
+                                   .Replace("\\r", "")
+                                   .Replace("\\t", "\t")
+                                   .Replace("\\\"", "\"")
+                                   .Replace("\\\\", "\\");
 
                     int lineCount = lyrics.Split('\n').Length;
                     return lyrics;
