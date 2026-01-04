@@ -69,6 +69,7 @@
 - **Followage Checker** - See how long users have been following
 - **Welcome Messages** - Greet first-time daily chatters
 - **Shoutouts** - OBS-integrated and chat-only variants
+- **YouTube Player** - Channel point redemption for playing YouTube videos on stream with queue system
 
 ### 🎨 Advanced Features
 - **Discord Webhook Logging** - Color-coded event tracking
@@ -160,7 +161,13 @@ StreamerBot-Commands/
 │   ├── Stream-Info/             # Title and game commands
 │   ├── Uptime/                  # Stream uptime tracker
 │   ├── Watchtime/               # Viewer watchtime system
-│   └── Welcome-Message/         # First-time chatter greetings
+│   ├── Welcome-Message/         # First-time chatter greetings
+│   └── YouTube-Player/          # YouTube video redemption system
+│       ├── YouTubeRedemptionCommand.cs  # Main redemption handler
+│       ├── YouTubeStopCommand.cs        # Moderator stop command
+│       ├── youtube-player.html          # HTML5 video player
+│       ├── SETUP-GUIDE.md               # Detailed setup instructions
+│       └── current-video.json           # (Auto-generated) Current video data
 │
 ├── Clip/                        # Clip management
 │   └── Clip-Fetch/              # Advanced clip creation
@@ -291,13 +298,13 @@ All settings are in `ConfigSetup.cs`. Key variables include:
 ### Games & Gambling (40+ commands)
 - Battle, Beg, Bingo, Blackjack, Boss, Bounty, Coinflip, Collect, Crime, Crash, Dice, Dig, Duel, Dungeon, Explore, Fish, Flip, Forage, Gamble, Heist, Highlow, Hunt, Invest, Keno, Ladder, Limbo, Lottery, Luck, Magic, Match, Mine, Mines, Pet, Pickpocket, Plinko, Quest, Race, Rob, Roulette, Scavenge, Scratch, Search, Slots, Spin, Streak, Tower, Treasure Hunt, Trivia, Vault, Wheel, Work
 
-### Utilities (10+ commands)
-- Commands List, Discord Link, Followage, Multi-Twitch, Quotes (Add/Get), Shoutout (2 variants), Stream Info (Title/Game), Uptime, Watchtime, Welcome Message
+### Utilities (11+ commands)
+- Commands List, Discord Link, Followage, Multi-Twitch, Quotes (Add/Get), Shoutout (2 variants), Stream Info (Title/Game), Uptime, Watchtime, Welcome Message, YouTube Player (with queue system & mod controls)
 
 ### Clip Management (1 command)
 - Advanced clip creation with automatic stream title modification
 
-**Total: 55+ Commands**
+**Total: 56+ Commands**
 
 ---
 
@@ -352,6 +359,41 @@ For commands that need Twitch API access (like ClipCommand):
    ```
 
 3. Run ConfigSetup.cs
+
+### YouTube Data API v3 Setup (Required for YouTube Player & Karaoke)
+
+The YouTube Player and Karaoke systems use the YouTube Data API to get exact video durations, ensuring videos play for their full length instead of cutting off early.
+
+**Getting your FREE API key (takes 2 minutes):**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select existing):
+   - Click "Select a project" → "New Project"
+   - Name it (e.g., "StreamerBot YouTube")
+   - Click "Create"
+3. Enable YouTube Data API v3:
+   - Go to "APIs & Services" → "Enable APIs and Services"
+   - Search for "YouTube Data API v3"
+   - Click on it → Click "Enable"
+4. Create API credentials:
+   - Go to "APIs & Services" → "Credentials"
+   - Click "Create Credentials" → "API Key"
+   - Copy the API key (starts with "AIza...")
+   - (Optional) Click "Restrict Key" and limit it to YouTube Data API v3 for security
+5. Add to ConfigSetup.cs (line 416):
+   ```csharp
+   string youtubeApiKey = "YOUR_YOUTUBE_API_KEY_HERE";  // PASTE YOUR API KEY HERE
+   ```
+6. Run ConfigSetup.cs
+
+**Free Tier Limits:**
+- **10,000 requests/day** (more than enough for streaming!)
+- Each video redemption = 1 request
+- Example: Stream for 8 hours with a video every 5 minutes = ~96 requests/day
+
+**Without API Key:**
+- System falls back to monitoring (videos may cut off early or wait up to 30 seconds after ending)
+- With API key: Videos play their exact length (30s video = exactly 30s)
 
 ---
 
@@ -522,8 +564,9 @@ It helps others discover the project and motivates continued development.
 
 ## 📊 Statistics
 
-- **55+ Commands** - Comprehensive command library
+- **56+ Commands** - Comprehensive command library
 - **40+ Games** - Interactive gambling and minigames
+- **11+ Utilities** - Stream management and viewer engagement tools
 - **100% Open Source** - Fully transparent codebase
 - **MIT Licensed** - Free to use and modify
 - **Active Development** - Regular updates and improvements
