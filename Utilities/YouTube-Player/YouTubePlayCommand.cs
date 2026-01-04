@@ -38,13 +38,11 @@ public class CPHInline
             // Get user info
             if (!CPH.TryGetArg("user", out string user))
             {
-                CPH.LogError("YouTube Redemption: Missing 'user' argument");
                 return false;
             }
 
             if (!CPH.TryGetArg("userId", out string userId))
             {
-                CPH.LogError("YouTube Redemption: Missing 'userId' argument");
                 return false;
             }
 
@@ -109,17 +107,14 @@ public class CPHInline
             }
 
             // Get exact video duration and title from YouTube API (if configured)
-            CPH.LogInfo($"Fetching duration for video ID: {videoId}");
             string videoTitle = "";
             string channelName = "";
             int videoDuration = GetExactVideoDuration(videoId, out videoTitle, out channelName);
-            CPH.LogInfo($"API returned duration: {videoDuration} seconds");
 
             // If API failed or not configured, use maxDuration as fallback
             if (videoDuration == 0)
             {
                 videoDuration = maxDuration;
-                CPH.LogInfo($"Using fallback duration: {maxDuration} seconds");
                 CPH.SendMessage($"⚠️ Could not get exact video duration. Playing for up to {maxDuration}s");
             }
             else
@@ -133,32 +128,22 @@ public class CPHInline
                     return false;
                 }
 
-                CPH.LogInfo($"Video duration: {videoDuration}s (within {maxDuration}s limit)");
             }
 
             // Fetch synced lyrics if this is a music video
             string syncedLyrics = "";
             if (isMusicVideo && !string.IsNullOrEmpty(videoTitle))
             {
-                CPH.LogInfo($"[LYRICS DEBUG] Detected music video - fetching lyrics for: {videoTitle}");
-                syncedLyrics = GetSyncedLyrics(videoTitle, channelName);
-                CPH.LogInfo($"[LYRICS DEBUG] Lyrics result - Length: {syncedLyrics.Length} chars");
+                syncedLyrics = GetSyncedLyrics(videoTitle, channelName, videoDuration);
                 if (syncedLyrics.Length > 0)
                 {
-                    CPH.SendMessage($"[DEBUG] Fetched {syncedLyrics.Split('\n').Length} lines of lyrics");
                 }
                 else
                 {
-                    CPH.SendMessage($"[DEBUG] No lyrics found for this song");
                 }
-            }
-            else
-            {
-                CPH.LogInfo($"[LYRICS DEBUG] Not a music video or no title - isMusicVideo: {isMusicVideo}, hasTitle: {!string.IsNullOrEmpty(videoTitle)}");
             }
 
             // Play the video immediately
-            CPH.LogInfo($"Calling PlayVideo with duration: {videoDuration}s");
             PlayVideo(user, videoId, videoTitle, obsScene, obsSource, videoDuration, syncedLyrics);
 
             return true;
@@ -169,7 +154,6 @@ public class CPHInline
                 $"**Error:** {ex.Message}\n**Stack Trace:** {ex.StackTrace}");
 
             CPH.SendMessage("⚠️ An error occurred while playing the video");
-            CPH.LogError($"YouTube Redemption error: {ex.Message}");
             return false;
         }
     }
@@ -259,30 +243,14 @@ public class CPHInline
             videoDuration = maxDuration;
         }
 
-        CPH.LogInfo($"[QUEUE] Music video flag from queue: {isMusicVideo}, Channel: '{channelName}'");
-        CPH.SendMessage($"[DEBUG QUEUE] Music Flag: {isMusicVideo} | Channel: '{channelName}'");
 
         // Fetch synced lyrics if this is a music video (based on queue flag)
         string syncedLyrics = "";
         if (isMusicVideo && !string.IsNullOrEmpty(videoTitle))
         {
-            CPH.LogInfo($"[QUEUE] Fetching lyrics for queued music video: {videoTitle}");
-            CPH.SendMessage($"[DEBUG QUEUE] Fetching lyrics for: {videoTitle}");
-            syncedLyrics = GetSyncedLyrics(videoTitle, channelName);
+            syncedLyrics = GetSyncedLyrics(videoTitle, channelName, videoDuration);
             if (syncedLyrics.Length > 0)
             {
-                CPH.SendMessage($"[DEBUG QUEUE] ✅ Found {syncedLyrics.Split('\n').Length} lines of lyrics!");
-            }
-            else
-            {
-                CPH.SendMessage($"[DEBUG QUEUE] ❌ No lyrics found for this song");
-            }
-        }
-        else
-        {
-            if (!isMusicVideo)
-            {
-                CPH.SendMessage($"[DEBUG QUEUE] Not detected as music video - no lyrics fetched");
             }
         }
 
@@ -294,7 +262,6 @@ public class CPHInline
 
     private void PlayVideo(string user, string videoId, string videoTitle, string obsScene, string obsSource, int maxDuration, string syncedLyrics = "")
     {
-        CPH.LogInfo($"=== PlayVideo START === User: {user}, VideoID: {videoId}, Title: {videoTitle}, Duration: {maxDuration}s, HasLyrics: {!string.IsNullOrEmpty(syncedLyrics)}");
 
         LogSuccess("YouTube Redemption Started",
             $"**User:** {user}\n**Video ID:** {videoId}\n**Title:** {videoTitle}\n**URL:** https://www.youtube.com/watch?v={videoId}");
@@ -320,34 +287,25 @@ public class CPHInline
         string jsonPath = System.IO.Path.GetFullPath("G:\\GitHub Projects\\StreamerBot-Commands\\Utilities\\YouTube-Player\\current-video.json");
         string jsonContent = $"{{\"videoId\":\"{videoId}\",\"timestamp\":{DateTime.UtcNow.Ticks},\"progressColor\":\"{progressColor}\",\"title\":\"{escapedTitle}\",\"requestedBy\":\"{escapedUser}\",\"lyrics\":\"{escapedLyrics}\",\"lyricsOffset\":{lyricsOffset}}}";
 
-        CPH.LogInfo($"Writing JSON to: {jsonPath}");
-        CPH.LogInfo($"[LYRICS DEBUG] Lyrics in JSON - Length: {escapedLyrics.Length} chars");
-        CPH.LogInfo($"JSON content: {jsonContent.Substring(0, Math.Min(200, jsonContent.Length))}...");
 
         try
         {
             System.IO.File.WriteAllText(jsonPath, jsonContent);
-            CPH.LogInfo($"✅ Successfully wrote video ID to JSON");
         }
         catch (Exception ex)
         {
-            CPH.LogError($"❌ Failed to write video JSON: {ex.Message}");
-            CPH.LogError($"Stack trace: {ex.StackTrace}");
         }
 
         // Small delay to ensure file is written
         System.Threading.Thread.Sleep(200);
 
         // Show the source
-        CPH.LogInfo($"Showing OBS source: Scene='{obsScene}', Source='{obsSource}'");
         CPH.ObsSetSourceVisibility(obsScene, obsSource, true, 0);
-        CPH.LogInfo($"OBS source visibility set to: true");
 
         // Monitor for video end using exact duration
         Task.Run(async () =>
         {
             string monitorId = Guid.NewGuid().ToString().Substring(0, 8);
-            CPH.LogInfo($"[MONITOR-{monitorId}] Started monitoring video {videoId} for {maxDuration}s");
 
             DateTime startTime = DateTime.Now;
             TimeSpan elapsed = TimeSpan.Zero;
@@ -368,13 +326,11 @@ public class CPHInline
                         string searchPattern = $"\"videoId\":\"{videoId}\"";
                         if (!currentJson.Contains(searchPattern))
                         {
-                            CPH.LogInfo($"[MONITOR-{monitorId}] New video detected in JSON, stopping monitoring for {videoId}");
                             return; // Don't process queue, new video is already playing
                         }
                     }
                     catch (Exception ex)
                     {
-                        CPH.LogError($"[MONITOR-{monitorId}] Error reading JSON: {ex.Message}");
                     }
                 }
 
@@ -382,19 +338,16 @@ public class CPHInline
                 bool isVisible = CPH.ObsIsSourceVisible(obsScene, obsSource, 0);
                 if (!isVisible && elapsed.TotalSeconds > 3)
                 {
-                    CPH.LogInfo($"[MONITOR-{monitorId}] Source hidden externally after {elapsed.TotalSeconds:F1}s, stopping monitoring");
                     return; // Don't process queue if manually stopped
                 }
 
                 // Check if duration reached (add 2 second buffer for safety)
                 if (elapsed.TotalSeconds >= maxDuration + 2)
                 {
-                    CPH.LogInfo($"[MONITOR-{monitorId}] Duration reached: {elapsed.TotalSeconds:F1}s >= {maxDuration}s (+2s buffer)");
                     break;
                 }
             }
 
-            CPH.LogInfo($"[MONITOR-{monitorId}] Video {videoId} ended naturally after {elapsed.TotalSeconds:F1}s");
             LogInfo("YouTube Video Ended",
                 $"**User:** {user}\n**Video ID:** {videoId}\n**Duration:** {elapsed.TotalSeconds:F1}s / {maxDuration}s");
 
@@ -415,33 +368,20 @@ public class CPHInline
         try
         {
             string apiKey = CPH.GetGlobalVar<string>("config_youtube_api_key", true);
-            CPH.LogInfo($"YouTube API key retrieved: {(string.IsNullOrEmpty(apiKey) ? "EMPTY" : "EXISTS")}");
-
-            // DEBUG: Send to chat
-            CPH.SendMessage($"[DEBUG] API Key: {(string.IsNullOrEmpty(apiKey) ? "EMPTY" : "EXISTS (last 4: ..." + apiKey.Substring(Math.Max(0, apiKey.Length - 4)) + ")")}");
 
             // If no API key configured, return 0 (will use fallback monitoring)
             if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_YOUTUBE_API_KEY_HERE")
             {
-                CPH.LogInfo("YouTube API key not configured - using fallback duration monitoring");
-                CPH.SendMessage("[DEBUG] API key not configured - using fallback");
                 return 0;
             }
 
             // Query YouTube Data API v3 - request both contentDetails (duration) and snippet (title)
             string url = $"https://www.googleapis.com/youtube/v3/videos?id={videoId}&key={apiKey}&part=contentDetails,snippet";
-            CPH.LogInfo($"Calling YouTube API: {url.Replace(apiKey, "***KEY***")}");
 
             using (WebClient client = new WebClient())
             {
                 client.Headers.Add("User-Agent", "StreamerBot-YouTube/1.0");
-                CPH.LogInfo("Downloading API response...");
                 string response = client.DownloadString(url);
-                CPH.LogInfo($"API Response length: {response.Length} chars");
-
-                // DEBUG: Send response snippet to chat
-                string responseSnippet = response.Length > 150 ? response.Substring(0, 150) + "..." : response;
-                CPH.SendMessage($"[DEBUG] API Response: {responseSnippet}");
 
                 // Parse JSON response manually (no JSON library in StreamerBot)
                 // Look for "duration": "PT..." (note: space after colon)
@@ -450,11 +390,9 @@ public class CPHInline
                 {
                     // Try without space for backwards compatibility
                     durationStart = response.IndexOf("\"duration\":\"");
-                    CPH.SendMessage("[DEBUG] Trying duration parse WITHOUT space");
                 }
                 else
                 {
-                    CPH.SendMessage("[DEBUG] Found duration WITH space");
                 }
 
                 if (durationStart > -1)
@@ -464,17 +402,12 @@ public class CPHInline
 
                 int durationEnd = response.IndexOf("\"", durationStart);
 
-                CPH.LogInfo($"Duration parse: start={durationStart}, end={durationEnd}");
-                CPH.SendMessage($"[DEBUG] Parse positions - start: {durationStart}, end: {durationEnd}");
 
                 if (durationStart > 0 && durationEnd > durationStart)
                 {
                     string duration = response.Substring(durationStart, durationEnd - durationStart);
-                    CPH.LogInfo($"Extracted duration string: {duration}");
                     int seconds = ParseISO8601Duration(duration);
 
-                    CPH.LogInfo($"YouTube API: Video duration = {seconds} seconds ({duration})");
-                    CPH.SendMessage($"[DEBUG] Extracted: '{duration}' = {seconds} seconds");
 
                     // Parse video title from snippet
                     int titleStart = response.IndexOf("\"title\": \"");
@@ -494,7 +427,6 @@ public class CPHInline
                             videoTitle = response.Substring(titleStart, titleEnd - titleStart);
                             // Unescape JSON characters
                             videoTitle = videoTitle.Replace("\\\"", "\"").Replace("\\\\", "\\");
-                            CPH.LogInfo($"Extracted video title: {videoTitle}");
                         }
                     }
 
@@ -518,8 +450,6 @@ public class CPHInline
                             channelName = channelName.Replace("\\\"", "\"").Replace("\\\\", "\\");
                             // Clean up common suffixes from channel names
                             channelName = channelName.Replace(" - Topic", "").Replace("VEVO", "").Replace("Official", "").Trim();
-                            CPH.LogInfo($"Extracted channel name: {channelName}");
-                            CPH.SendMessage($"[DEBUG] Channel: {channelName}");
                         }
                     }
 
@@ -527,17 +457,11 @@ public class CPHInline
                 }
                 else
                 {
-                    CPH.LogError("Could not find duration in API response");
-                    CPH.LogInfo($"Response snippet: {response.Substring(0, Math.Min(200, response.Length))}");
-                    CPH.SendMessage("[DEBUG] ERROR: Could not find duration in response!");
                 }
             }
         }
         catch (Exception ex)
         {
-            CPH.LogError($"Failed to fetch video duration from YouTube API: {ex.Message}");
-            CPH.LogError($"Stack trace: {ex.StackTrace}");
-            CPH.SendMessage($"[DEBUG] API EXCEPTION: {ex.Message}");
         }
 
         return 0; // Return 0 on failure (will use fallback)
@@ -595,25 +519,18 @@ public class CPHInline
     // MUSIXMATCH API - SYNCED LYRICS FETCHING
     // ═══════════════════════════════════════════════════════════
 
-    private string GetSyncedLyrics(string songTitle, string channelName)
+    private string GetSyncedLyrics(string songTitle, string channelName, int videoDuration)
     {
         try
         {
             // Check if lyrics are enabled in config
             bool lyricsEnabled = CPH.GetGlobalVar<bool>("config_youtube_lyrics_enabled", true);
 
-            CPH.LogInfo($"[LYRICS DEBUG] GetSyncedLyrics called - Enabled: {lyricsEnabled}, Title: {songTitle}, Channel: {channelName}");
-
-            // If lyrics disabled, skip (video will still play normally)
             if (!lyricsEnabled)
             {
-                CPH.LogInfo("Lyrics disabled in config - skipping lyrics");
-                CPH.SendMessage("[DEBUG] Lyrics are disabled in config");
                 return "";
             }
 
-            CPH.LogInfo($"Fetching lyrics for: {songTitle}");
-            CPH.SendMessage($"[DEBUG] Full video title: {songTitle}");
 
             // Try to parse artist and song from title
             // Common formats: "Artist - Song", "Song by Artist", "Artist: Song"
@@ -647,31 +564,23 @@ public class CPHInline
             if (string.IsNullOrEmpty(artist) && !string.IsNullOrEmpty(channelName))
             {
                 artist = channelName;
-                CPH.LogInfo($"[LYRICS DEBUG] Using channel name as artist: {artist}");
-                CPH.SendMessage($"[DEBUG] Using channel '{channelName}' as artist");
             }
 
             // If we still don't have an artist, we can't fetch lyrics
             if (string.IsNullOrEmpty(artist))
             {
-                CPH.LogInfo($"[LYRICS DEBUG] Could not determine artist from title or channel");
-                CPH.SendMessage($"[DEBUG] Could not determine artist - no channel name available");
                 return "";
             }
 
-            // Use LRCLIB API (completely free, provides timestamped lyrics)
-            string lyricsUrl = $"https://lrclib.net/api/get?artist_name={System.Uri.EscapeDataString(artist)}&track_name={System.Uri.EscapeDataString(song)}";
+            // Use LRCLIB API with duration for better matching
+            // Duration parameter helps LRCLIB return the most accurate version of the song
+            string lyricsUrl = $"https://lrclib.net/api/get?artist_name={System.Uri.EscapeDataString(artist)}&track_name={System.Uri.EscapeDataString(song)}&duration={videoDuration}";
 
-            CPH.LogInfo($"Fetching from LRCLIB: {artist} - {song}");
-            CPH.LogInfo($"[LYRICS DEBUG] API URL: {lyricsUrl}");
-            CPH.SendMessage($"[DEBUG] Searching lyrics: {artist} - {song}");
 
             using (WebClient client = new WebClient())
             {
                 client.Headers.Add("User-Agent", "StreamerBot-YouTube/1.0");
                 string response = client.DownloadString(lyricsUrl);
-
-                CPH.LogInfo($"[LYRICS DEBUG] LRCLIB Response length: {response.Length} chars");
 
                 // Parse synced lyrics from response (LRC format with timestamps)
                 int syncedStart = response.IndexOf("\"syncedLyrics\":\"");
@@ -684,7 +593,6 @@ public class CPHInline
                 if (syncedStart == -1)
                 {
                     // No synced lyrics, try plain lyrics as fallback
-                    CPH.LogInfo("No synced lyrics found, trying plain lyrics");
                     int plainStart = response.IndexOf("\"plainLyrics\":\"");
                     if (plainStart == -1)
                     {
@@ -702,14 +610,10 @@ public class CPHInline
                             lyrics = lyrics.Replace("\\n", "\n").Replace("\\r", "").Replace("\\\"", "\"").Replace("\\\\", "\\");
 
                             int lineCount = lyrics.Split('\n').Length;
-                            CPH.LogInfo($"Successfully fetched {lineCount} lines of plain lyrics (no timestamps)");
-                            CPH.SendMessage($"[DEBUG] Found plain lyrics ({lineCount} lines, no timestamps)");
                             return lyrics;
                         }
                     }
 
-                    CPH.LogInfo("No lyrics found in API response");
-                    CPH.SendMessage("[DEBUG] No lyrics found");
                     return "";
                 }
 
@@ -723,15 +627,12 @@ public class CPHInline
                     lyrics = lyrics.Replace("\\n", "\n").Replace("\\r", "").Replace("\\\"", "\"").Replace("\\\\", "\\");
 
                     int lineCount = lyrics.Split('\n').Length;
-                    CPH.LogInfo($"Successfully fetched {lineCount} lines of SYNCED lyrics with timestamps");
-                    CPH.SendMessage($"[DEBUG] Found synced lyrics ({lineCount} lines with timestamps)");
                     return lyrics;
                 }
             }
         }
         catch (Exception ex)
         {
-            CPH.LogError($"Failed to fetch lyrics: {ex.Message}");
         }
 
         return "";
@@ -846,7 +747,6 @@ public class CPHInline
 
             if (string.IsNullOrEmpty(webhookUrl))
             {
-                CPH.LogWarn("Discord webhook not configured. Run ConfigSetup.cs first.");
                 return;
             }
 
@@ -881,7 +781,6 @@ public class CPHInline
         }
         catch (Exception ex)
         {
-            CPH.LogError($"DiscordLogger error: {ex.Message}");
         }
     }
 
