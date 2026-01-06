@@ -91,15 +91,24 @@ Design 5 unique maze layouts:
 ---
 
 ### Step 2.3: Maze Game - Channel Point Queue System ✅ / ❌
-**File:** `Utilities/Interactive-Games/Maze/MazeRedemptionCommand.cs`
+**Files:**
+- `Utilities/Interactive-Games/Maze/MazeUpCommand.cs`
+- `Utilities/Interactive-Games/Maze/MazeDownCommand.cs`
+- `Utilities/Interactive-Games/Maze/MazeLeftCommand.cs`
+- `Utilities/Interactive-Games/Maze/MazeRightCommand.cs`
 
-Create channel point redemption handler:
-- Listen for specific channel point reward
+Create channel point redemption handlers (4 separate rewards in StreamerBot):
+- StreamerBot triggers action on channel point redemption
 - Queue redemptions (FIFO)
-- Track contributor usernames and amounts
+- Track contributor usernames and points spent
 - Execute movement commands (up, down, left, right)
-- Prevent duplicate rapid redemptions
+- Prevent duplicate rapid redemptions from same user (1s cooldown)
 - Maximum queue size (e.g., 50 moves)
+
+**StreamerBot Setup:**
+- Create 4 channel point rewards: "Maze Up", "Maze Down", "Maze Left", "Maze Right"
+- Each triggers corresponding C# action
+- Actions add move to shared queue
 
 **Queue Format:**
 ```json
@@ -182,19 +191,29 @@ Create HTML5 canvas snake game:
 ---
 
 ### Step 2.8: Snake Game - Channel Point Queue System ✅ / ❌
-**File:** `Utilities/Interactive-Games/Snake/SnakeRedemptionCommand.cs`
+**Files:**
+- `Utilities/Interactive-Games/Snake/SnakeUpCommand.cs`
+- `Utilities/Interactive-Games/Snake/SnakeDownCommand.cs`
+- `Utilities/Interactive-Games/Snake/SnakeLeftCommand.cs`
+- `Utilities/Interactive-Games/Snake/SnakeRightCommand.cs`
 
-Create channel point redemption handler:
-- Listen for snake game reward
+Create channel point redemption handlers (4 separate rewards in StreamerBot):
+- StreamerBot triggers action on channel point redemption
 - Queue direction changes (up, down, left, right)
-- Track contributors
+- Track contributors and points spent
 - Prevent opposite direction moves (can't go left if moving right)
 - Process queue every 500ms-1s (adjustable speed)
+
+**StreamerBot Setup:**
+- Create 4 channel point rewards: "Snake Up", "Snake Down", "Snake Left", "Snake Right"
+- Each triggers corresponding C# action
+- Actions add move to shared queue
 
 **Queue Management:**
 - Max queue size: 100 moves
 - Deduplicate consecutive same directions
 - Track points spent per user
+- Reject invalid moves (opposite direction)
 
 ---
 
@@ -256,11 +275,20 @@ Create moderator commands:
 Document OBS integration:
 - Add browser source for each game
 - Local file path or web server setup
-- Recommended dimensions
+- Recommended dimensions (800x600 for Maze, 800x800 for Snake)
 - CSS/transparency settings
-- Channel point reward setup
-- Redemption name matching
+- StreamerBot action setup
+- Channel point reward creation (4 rewards per game)
+- Linking rewards to actions
+- WebSocket/communication setup between HTML and StreamerBot
 - Testing procedures
+
+**StreamerBot Configuration:**
+- Import C# actions for each direction (8 total: 4 for Maze, 4 for Snake)
+- Create channel point rewards in Twitch
+- Link each reward to corresponding action
+- Configure mod control commands (!mazestart, !snakestart, etc.)
+- Test redemption flow
 
 ---
 
