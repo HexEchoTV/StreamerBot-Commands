@@ -17,6 +17,7 @@
 - [🚀 Quick Start](#-quick-start)
 - [💰 Currency System](#-currency-system)
 - [🎮 Available Commands](#-available-commands)
+- [🚧 Development Roadmap](#-development-roadmap)
 - [⚙️ Configuration](#️-configuration)
 - [🎨 Discord Integration](#-discord-integration)
 - [📚 Documentation](#-documentation)
@@ -29,17 +30,20 @@
 
 ## 🎯 Overview
 
-**StreamerBot Commands** is a professionally-designed collection of C# actions for [StreamerBot](https://streamer.bot/), providing streamers with a complete economy system, 40+ interactive games, essential utilities, and powerful integrations. Built with modularity, extensibility, and ease of use in mind.
+**StreamerBot Commands** is a professionally-designed collection of C# actions for [StreamerBot](https://streamer.bot/), providing streamers with a complete economy system, 26 completed interactive games (with 27 more in development), essential utilities, and powerful integrations. Built with modularity, extensibility, and ease of use in mind.
+
+**Current Status:** 38 completed commands, 34 in active development, 15 new features planned (87 total features when complete)
 
 ### What Makes This Collection Unique?
 
 - ✅ **Complete Currency Economy** - Fully-featured currency system with daily claims, leaderboards, and transactions
-- ✅ **40+ Interactive Games** - Gambling, PvP, quests, treasure hunts, and more
+- ✅ **26 Interactive Games** - Gambling, PvP, quests, treasure hunts, and more (27 additional games in development)
 - ✅ **Advanced Discord Logging** - Comprehensive event tracking with color-coded embeds
 - ✅ **Modular Architecture** - Use what you need, customize what you want
 - ✅ **Professional Code Quality** - Well-documented, error-handled, and maintainable
-- ✅ **Active Development** - Regular updates and community support
+- ✅ **Active Development** - Regular updates and community support (see FUTURE-PLANS.md)
 - ✅ **MIT Licensed** - Free to use, modify, and distribute
+- 🚧 **Exciting Features Coming** - Maze & Snake overlay games, Achievement system, Chat Wars, and more!
 
 ---
 
@@ -52,24 +56,31 @@
 - **Transaction Logging** - Complete audit trail via Discord
 - **Configurable Economy** - Adjust rates, limits, and rewards
 
-### 🎮 Games & Gambling (40+ Commands)
-- **Classic Games** - Coinflip, Dice, Slots, Roulette, Blackjack
-- **Advanced Games** - Crash, Plinko, Mines, Tower, Keno
-- **PvP Games** - Duel, Battle, Rob, Heist
-- **RPG Elements** - Quest, Dungeon, Boss, Explore, Hunt
-- **Casual Games** - Bingo, Trivia, Magic 8-Ball, Scratch Cards
-- **Risk Management** - Work, Scavenge, Forage, Fish, Mine, Dig
+### 🎮 Games & Gambling (26 Completed, 27 In Development)
+**Completed Games:**
+- **Classic Games** - Coinflip, Dice, Blackjack
+- **Advanced Games** - Crash, Plinko, Keno, Lottery
+- **PvP Games** - Duel, Battle, Rob
+- **RPG Elements** - Boss
+- **Casual Games** - Bingo, Magic 8-Ball, Scratch Cards, Wordle
+- **Risk Management** - Work, Scavenge, Dig
+- **Other** - Beg, Bounty, Collect, Crime, Highlow, Invest, Luck, Treasure Hunt
 
-### 🛠️ Utility Commands
-- **Stream Info** - Title, game, uptime tracking
-- **Social Integration** - Discord links, multi-streaming
+**In Development:**
+- Dungeon, Explore, Fish, Flip, Forage, Gamble, Heist, Hunt, Ladder, Limbo, Match, Mine, Mines, Pet, Pickpocket, Quest, Race, Roulette, Search, Slots, Spin, Streak, Tower, Trivia, Vault, Wheel, Word Chain
+
+### 🛠️ Utility Commands (7 Completed, 7 In Development)
+**Completed:**
+- **Social Integration** - Discord links
 - **Clip Management** - Advanced clip creation with title modification
-- **Quotes System** - Add, retrieve, and manage stream quotes
-- **Watchtime Tracking** - Automated viewer time tracking
 - **Followage Checker** - See how long users have been following
 - **Welcome Messages** - Greet first-time daily chatters
 - **Shoutouts** - OBS-integrated and chat-only variants
 - **YouTube Player** - Channel point redemption for playing YouTube videos on stream with queue system
+- **Discord Logging** - Comprehensive event tracking system
+
+**In Development:**
+- Stream Info (Title, Game), Uptime Tracking, Watchtime Tracking, Quotes System, Commands List, Multi-Twitch, Karaoke
 
 ### 🎨 Advanced Features
 - **Discord Webhook Logging** - Color-coded event tracking
@@ -292,19 +303,87 @@ All settings are in `ConfigSetup.cs`. Key variables include:
 
 ## 🎮 Available Commands
 
-### Currency Core (5 commands)
+### Currency Core (5 commands) ✅
 - Balance Check, Daily Claim, Give Coins, Leaderboard, Example Integration
 
-### Games & Gambling (40+ commands)
-- Battle, Beg, Bingo, Blackjack, Boss, Bounty, Coinflip, Collect, Crime, Crash, Dice, Dig, Duel, Dungeon, Explore, Fish, Flip, Forage, Gamble, Heist, Highlow, Hunt, Invest, Keno, Ladder, Limbo, Lottery, Luck, Magic, Match, Mine, Mines, Pet, Pickpocket, Plinko, Quest, Race, Rob, Roulette, Scavenge, Scratch, Search, Slots, Spin, Streak, Tower, Treasure Hunt, Trivia, Vault, Wheel, Work
+### Games & Gambling (26 completed, 27 in development)
+**Completed Games:**
+- Battle, Beg, Bingo, Blackjack, Boss, Bounty, Coinflip, Collect, Crime, Crash, Dice, Dig, Duel, Highlow, Invest, Keno, Lottery, Luck, Magic, Plinko, Rob, Scavenge, Scratch, Treasure Hunt, Work, Wordle
 
-### Utilities (11+ commands)
-- Commands List, Discord Link, Followage, Multi-Twitch, Quotes (Add/Get), Shoutout (2 variants), Stream Info (Title/Game), Uptime, Watchtime, Welcome Message, YouTube Player (with queue system & mod controls)
+**In Development:**
+- Dungeon, Explore, Fish, Flip, Forage, Gamble, Heist, Hunt, Ladder, Limbo, Match, Mine, Mines, Pet, Pickpocket, Quest, Race, Roulette, Search, Slots, Spin, Streak, Tower, Trivia, Vault, Wheel, Word Chain
 
-### Clip Management (1 command)
+### Utilities (7 completed, 7 in development)
+**Completed Utilities:**
+- Discord Link, Discord Logging, Followage, Shoutout (2 variants), Welcome Message, YouTube Player (with queue system & mod controls)
+
+**In Development:**
+- Commands List, Karaoke, Multi-Twitch, Quotes, Stream Info, Uptime, Watchtime
+
+### Clip Management (1 command) ✅
 - Advanced clip creation with automatic stream title modification
 
-**Total: 56+ Commands**
+### New Features Planned (15 features)
+See `FUTURE-PLANS.md` and `IMPLEMENTATION-PLAN.md` for details:
+- Interactive Overlay Games (Maze, Snake)
+- Achievement System
+- Chat Wars / Team Battles
+- Counting Game
+- Random Viewer Picker
+- Enhanced Raid Handler
+- Auto-Raid Rotation
+- Squad/Team Stats
+- Advanced Mod Tools
+- Viewer Stats Dashboard
+- Goal Tracker System
+- Stream Stats Command
+- Stock Market Simulator
+
+**Total Completed: 38+ Commands**
+**Total In Development: 34 Commands**
+**Total Planned: 15 Features**
+**Grand Total: 87 Commands & Features**
+
+---
+
+## 🚧 Development Roadmap
+
+This project is actively being developed with exciting new features planned!
+
+### 📋 Planning Documents
+- **[FUTURE-PLANS.md](FUTURE-PLANS.md)** - Complete list of planned features and unfinished commands
+- **[IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md)** - Detailed 52-step implementation guide for new features
+
+### 🎮 Upcoming Features (Highlights)
+1. **Interactive Overlay Games**
+   - Maze Game - Chat-controlled maze with channel point queue system
+   - Snake Game - Classic snake game controlled by community
+
+2. **Achievement System** - 30+ unlockable achievements with rarity tiers
+
+3. **Community Features**
+   - Chat Wars / Team Battles
+   - Counting Game
+   - Word Chain Game
+   - Random Viewer Picker
+
+4. **Stream Tools**
+   - Enhanced Raid Handler with stats
+   - Auto-Raid Rotation
+   - Goal Tracker System
+   - Stream Stats Dashboard
+   - Viewer Profile System
+
+5. **Economy Features**
+   - Stock Market Simulator
+   - Advanced Mod Tools
+
+### 🔨 How to Contribute to Development
+Want to help complete unfinished features or implement new ones?
+1. Check `FUTURE-PLANS.md` for the full list
+2. Review `IMPLEMENTATION-PLAN.md` for step-by-step guides
+3. Pick a feature or step to work on
+4. Submit a pull request!
 
 ---
 
@@ -564,13 +643,18 @@ It helps others discover the project and motivates continued development.
 
 ## 📊 Statistics
 
-- **56+ Commands** - Comprehensive command library
-- **40+ Games** - Interactive gambling and minigames
-- **11+ Utilities** - Stream management and viewer engagement tools
+- **38 Commands** - Completed and fully functional
+- **34 Commands** - Currently in development
+- **15 New Features** - Planned for implementation
+- **87 Total Features** - When fully completed
+- **26 Completed Games** - Interactive gambling and minigames
+- **7 Completed Utilities** - Stream management and viewer engagement tools
 - **100% Open Source** - Fully transparent codebase
 - **MIT Licensed** - Free to use and modify
 - **Active Development** - Regular updates and improvements
 - **Community Supported** - Discord community for help
+
+See `FUTURE-PLANS.md` for development roadmap and `IMPLEMENTATION-PLAN.md` for detailed implementation steps.
 
 ---
 
